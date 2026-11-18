@@ -427,3 +427,14 @@ but Bounds' parameter for `Max` held a `///` within it, which the cheatsheet sho
 with the /// highest X, Y and Z". Each element stands whole on a line where it fits in 100 columns,
 else between its tags on lines of their own, and no line breaks inside a tag, and CHEATSHEET.md is
 written again with that line mended. No other word changed. The tests pass, 170.
+
+The recipe's lines in the README, in the commit carrying this line, the first of the three items
+agreed after item 3. Its test, that the README gives every operation's line as its command reads it,
+failed before on all 46. The section A recipe's lines says what a recipe's file is, its header,
+comments and blank lines, how a line's words and numbers are read and what a line acts on, with a
+recipe of a room and its door, which a test builds, and lists each operation's line in the
+commands' usage grammar with what it does, each line its command's usage without the command's name
+and the model's. `select`'s summary says what it selects by, and a `<side>` is named. JoinDepthTests comes with it
+as the guard of the rule that a join's depth is counted on each thread for itself, written to show
+a shared count and passing before any mend, since the count is `[ThreadStatic]`. The tests pass,
+174 where there were 170 (dotnet test Modeling.Tests).

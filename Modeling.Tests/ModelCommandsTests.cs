@@ -232,4 +232,34 @@ public sealed class ModelCommandsTests : IDisposable
     private static bool IsOfTheStore(string name) =>
         name is "model.new" or "model.free" or "model.list" or "model.info" or "model.recipe" or "model.undo" or "model.redo"
             or "model.save" or "model.load" or "model.export" or "model.show";
+
+    [Fact]
+    public void The_Readme_Gives_Every_Operations_Line_As_Its_Command_Reads_It()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(root.FullName, "Modeling.slnx"))) root = root.Parent!;
+        var readme = File.ReadAllText(Path.Combine(root.FullName, "README.md"));
+
+        // An operation's line is its command's usage without the command's name and the model's,
+        // so the recipe's lines and the commands' usages are one grammar.
+        var missing = _commands.All.Where(command => !IsOfTheStore(command.Name))
+            .Select(command => command.Name["model.".Length..] + command.Usage[(command.Name + " <name>").Length..])
+            .Where(line => !readme.Contains($"`{line}`", StringComparison.Ordinal)).ToArray();
+        Assert.True(missing.Length == 0, "the README gives no line of " + string.Join(", ", missing));
+    }
+
+    [Fact]
+    public void The_Readmes_Recipe_Builds_The_Room_It_Says()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(root.FullName, "Modeling.slnx"))) root = root.Parent!;
+        var readme = File.ReadAllText(Path.Combine(root.FullName, "README.md")).ReplaceLineEndings("\n");
+        var section = readme[readme.IndexOf("## A recipe's lines", StringComparison.Ordinal)..];
+        var start = section.IndexOf("```text\n", StringComparison.Ordinal) + "```text\n".Length;
+        var recipe = section[start..section.IndexOf("```", start, StringComparison.Ordinal)];
+
+        var room = EditMesh.FromRecipe(recipe);
+        Assert.True(room.IsClosed);
+        Assert.Equal(new[] { "room 6 3 5 0.2", "select +z", "cut door 1 2.1 1.5" }, room.Recipe);
+    }
 }

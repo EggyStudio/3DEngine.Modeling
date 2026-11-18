@@ -215,6 +215,74 @@ public sealed class HostConsole
 }
 ```
 
+## A recipe's lines
+
+A model's recipe is a text file ending in `.model`, whose first line is `model 1`, its form and the
+form's version, and then one operation a line, as `EditMesh.Run` takes each and `EditMesh.RecipeText`
+writes them. Text after `#` to the line's end is a comment, and a blank line is skipped. A line's
+words are split at spaces and tabs with no quoting and its numbers read in the invariant culture, as
+a command's are, and each operation acts on the selection the lines before it left, a primitive
+selecting what it made. A line is written in the usage grammar of the commands, an operation's
+command taking the line after the model's name, and a `<side>` is one of `+x`, `-x`, `+y`, `-y`,
+`+z` and `-z`, the faces that face nearest that way.
+
+```text
+model 1
+# a room with a door in its front wall
+room 6 3 5 0.2
+select +z
+cut door 1 2.1 1.5
+```
+
+The operations and their lines are these.
+
+- `box <x y z> [at <x y z>] [center]`, adds a box.
+- `plane <width> <depth> [at <x y z>] [center]`, adds a plane facing up.
+- `cylinder <radius> <height> <sides> [at <x y z>] [center]`, adds a cylinder.
+- `cone <radius> <height> <sides> [at <x y z>] [center]`, adds a cone.
+- `wedge <x y z> [at <x y z>] [center]`, adds a wedge rising along Z.
+- `stairs <steps> <rise> <run> <width> [at <x y z>] [center]`, adds a flight of stairs.
+- `arch <radius> <thickness> <depth> <sides> [at <x y z>] [center]`, adds an arch.
+- `room <x y z> <thickness> [at <x y z>] [center]`, adds a hollow room.
+- `ramp <rise> <run> <width> [at <x y z>] [center]`, adds a ramp rising along Z.
+- `tube <sides> (<x y z radius>)...`, adds a tube along a chain of points, round about each by its radius.
+- `select (all | none | invert | [(add | remove)] (face (<face>)... | edge (<a b>)... | <side> | box <x0 y0 z0 x1 y1 z1> | slot <slot>))`, selects faces, edges or vertices by what they are or where they lie.
+- `move <x y z>`, moves the selection.
+- `rotate (x | y | z | <ax ay az>) <degrees> [at <x y z>]`, turns the selection.
+- `scale (<factor> | <x y z>) [at <x y z>]`, scales the selection.
+- `grid <step>`, sets the grid step.
+- `snap`, puts the selection on the grid.
+- `material <slot>`, puts the selected faces in a slot.
+- `shade (smooth [<degrees>] | flat)`, draws the selected faces smoothed or flat.
+- `clear`, empties a model.
+- `extrude (<distance> | <x y z>)`, pushes the selected faces out.
+- `inset <distance>`, insets each selected face.
+- `delete [fill]`, takes away the selection.
+- `merge <distance>`, joins the selected vertices within a distance.
+- `flip`, turns the selected faces the other way.
+- `triangulate`, cuts the selected faces into triangles.
+- `duplicate`, copies the selected faces in place.
+- `join <path>`, adds another model from its recipe's file.
+- `import <path>`, adds the meshes of a model file as faces.
+- `bevel <width> [<segments>]`, bevels the selected edges.
+- `loopcut <fraction>`, cuts a ring of faces through the selected edge.
+- `subdivide [<cuts>]`, cuts each selected face into smaller ones.
+- `bridge`, joins two selected loops of edges by a band of faces.
+- `fill`, closes the selected loop of open edges with a face.
+- `dissolve [edges]`, joins the selected faces into one, or takes away the selected edges.
+- `knife (x | y | z | <ax ay az>) [at <x y z>]`, cuts the selected faces along a plane.
+- `mirror (x | y | z | <ax ay az>) [at <x y z>]`, adds the selection mirrored across a plane.
+- `spin (x | y | z | <ax ay az>) <degrees> <steps> [at <x y z>]`, sweeps the selection round an axis.
+- `smooth <factor> [<passes>]`, moves the selected vertices toward their neighbors.
+- `modifier ([add] (mirror <axes> [at <x y z>] | array <count> <x y z> | array curve (<x y z>)... | bevel <width> [<segments>] [<degrees>] | subdivision <level> | solidify <thickness> | triangulate | boolean (union | subtract | intersect) (<path> [at <x y z>] | <solid line>...)) | move <from> <to> | remove <index> | apply <index>)`, changes the modifier stack.
+- `union (<path> [at <x y z>] | <solid line>...)`, adds another solid.
+- `subtract (<path> [at <x y z>] | <solid line>...)`, takes another solid away.
+- `intersect (<path> [at <x y z>] | <solid line>...)`, keeps what both solids hold.
+- `cut (window <width> <height> <along> <sill> | door <width> <height> <along> | <solid line>...)`, cuts a window, a door or a solid through the selected faces.
+- `epsilon <distance>`, sets how near a point is to a plane to lie in it.
+- `uv (planar (<side> | <x y z>) | box | cylinder (x | y | z | <ax ay az>) [at <x y z>] | sphere [at <x y z>] | move <u v> | scale <s> [<t>] [each] | rotate <degrees> [each] | density <pixels> [<width>] | reset)`, shapes the selected faces' texture coordinates.
+- `slot (add <slot> | remove <slot> | rename <slot> <new> | color <slot> <r g b> [<a>] | (texture | normal-map | occlusion-map | metallic-roughness-map | emissive-map) <slot> (<path> | none) | emissive <slot> <r g b> | (metallic | roughness) <slot> <value>)`, changes a material slot.
+
 ## Building and testing
 
 The library takes the Materials module and the tests take the checks every module keeps from the
