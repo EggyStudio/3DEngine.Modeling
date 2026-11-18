@@ -329,7 +329,7 @@ normals give, where the module's keeps the material's name alone. Taking it wide
 a look, texture coordinates and normals, a public shape both engines' readers fill, so it is
 proposed here as a part of its own before part 4.
 
-The cheat sheet in the commit carrying this line, as Tools' README section A module's cheat sheet
+The cheatsheet in the commit carrying this line, as Tools' README section A module's cheatsheet
 gives it, Tools pinned at `3720852`. ModuleTests holds the fifth fact beside the four, and
 CHEATSHEET.md, written by `CHEATSHEET_WRITE=1 dotnet test Modeling.Tests` under a short opening
 written by hand, lists 10 types and 180 members. The README's top row links it beside the devlog,
@@ -370,3 +370,13 @@ engine whose emissive light has those units scales it once.
 
 The README's link row takes the full addresses. The strict build is clean and the tests pass, 157
 where there were 156 (dotnet test Modeling.Tests).
+
+The sweep for the rule that a module names no engine, in the commit carrying this line. `git grep -n
+-P "BevyCSharp|\bBevy\b|3DEngine(?!\.[A-Z])" -- . ':!modules' ':!.github/REVIEW.md'
+':!.github/NORM.md'` found 10 lines before it, in AGENTS.md's and the README's opening sentence, the
+README's binding paragraph and texture section, ExchangeTests' fixture remark and three comments of
+build/textures.py, and finds none after it. The binding paragraph's sentence on an engine of
+entities and one of a flat API of handles is taken out, as a description of two engines' forms, and
+its line on ModelFolder says it reads glTF. The texture sets' formats are named as the Vegetation
+module's collection's. No sheet or caption named an engine. DEVLOG.md and CHEATSHEET.md were written
+again and are the same, 3 days, 4 pictures and 3 items done, and 10 types. The tests pass, 157.

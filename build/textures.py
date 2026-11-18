@@ -7,8 +7,8 @@ it, textures.json, names, by the recipe it gives each entry.
     build/textures.py --out DIR NAME ...     # write the entries under DIR, the collection left as it is
     build/textures.py --repeat FILE DX DY    # the shift near DX, DY at which a scan best matches itself
 
-An entry is three KTX2 files with their mipmaps, in the formats of BevyCSharp's vegetation
-collection, whose build/textures.py this one is carried from until the Tools module holds it:
+An entry is three KTX2 files with their mipmaps, in the formats of the Vegetation module's
+collection:
 
     albedo.ktx2   BC7, sRGB     the color in RGB and the opacity in A
     normal.ktx2   BC5           the tangent-space normal's X and Y, its Z what makes a unit length
@@ -16,8 +16,8 @@ collection, whose build/textures.py this one is carried from until the Tools mod
                                 as glTF's occlusion and metallic-roughness textures place the first three
 
 The albedo is the size the recipe gives, at most 1024 square, and the normal and the surface half of
-it, as in the vegetation's collection. Each level's blocks are kept as they are, where BevyCSharp's
-compresses them with zstd, since .NET's library holds no zstd, so the module's tests and a reader
+it, as in the Vegetation module's collection. Each level's blocks are kept as they are, with no zstd
+over them, since .NET's library holds no zstd, so the module's tests and a reader
 without it take the files as written. Git compresses them in the repository all the same.
 
 Every entry tiles. A map is resized with its opposite edges wrapped round, so it tiles at its new
@@ -30,7 +30,7 @@ its neighbor across the opposite edge are the same place, and a stain or a shade
 diluted by the others. The repeat's size in meters is written into the manifest from the dots an
 inch the scan's file records.
 
-The encoders are BevyCSharp's, BC7's mode 6 with each block's endpoints along its principal axis and
+The encoders are BC7's mode 6 with each block's endpoints along its principal axis and
 fitted again by least squares, and BC4 twice for BC5, so the build needs Python 3 and Pillow and
 nothing else. Each level is made from the one above by a box filter. Each build writes the files'
 sizes, the encoders' error, the mean color and the mean surface back into the manifest, which the

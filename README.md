@@ -2,9 +2,9 @@
 
 # Modeling
 
-Modeling is a library both engines, 3DEngine and BevyCSharp, take as a git submodule, for the edit
-mesh shaped by operations through a selection, its recipes and the `model.*` commands. It references
-no engine, and each engine implements the interfaces it declares where it binds the module.
+Modeling is a library an engine takes as a git submodule, for the edit mesh shaped by operations
+through a selection, its recipes and the `model.*` commands. It references no engine, and an engine
+implements the interface it declares where it binds the module.
 
 ## What it holds
 
@@ -54,12 +54,10 @@ stands beside it.
 
 A mesh is made with the engine's files, `new EditMesh(files)`, or read with them by
 `EditMesh.Load` or `EditMesh.FromRecipe`, and every mesh a join, a boolean or a modifier makes inside
-it shares them. `ModelFolder` is an `IModelFiles` over a folder, reading the width of a PNG or a KTX2
-from its header and no model file. The binding reads what `EditMeshBuild.Slots` gives, a mesh a
-material slot of `MeshVertex` corners and uint triangles, and each slot's `SlotLook` by
-`EditMesh.LookAt`, whose maps `MaterialMap` names, and makes meshes and materials of its own. An
-engine whose meshes are entities keeps an edit mesh on its entity, as BevyCSharp's modeling does, and
-one with a flat API of handles keeps them by an id in a store, as 3DEngine's does.
+it shares them. `ModelFolder` is an `IModelFiles` over a folder, reading a model file as glTF and
+the width of a PNG or a KTX2 from its header. The binding reads what `EditMeshBuild.Slots` gives, a
+mesh a material slot of `MeshVertex` corners and uint triangles, and each slot's `SlotLook` by
+`EditMesh.LookAt`, whose maps `MaterialMap` names, and makes meshes and materials of its own.
 
 What the module gives out stands on these conventions.
 
@@ -166,7 +164,7 @@ dotnet test Modeling.Tests
 ## Textures
 
 `Modeling/Textures` holds interior and architectural texture sets, each three KTX2 files with their
-mipmaps in the formats of BevyCSharp's vegetation collection, which a GPU samples as they are.
+mipmaps in the formats of the Vegetation module's collection, which a GPU samples as they are.
 
 | File | Channels | Encoding | Size |
 |---|---|---|---|
@@ -182,8 +180,8 @@ mipmaps in the formats of BevyCSharp's vegetation collection, which a GPU sample
 The collection holds two sets in six files, 3.0 MB together, as `build/textures.py` writes their
 sizes into the manifest. A set is at most 1024 square and the collection at most 32 MB, which
 `dotnet test Modeling.Tests` holds, along with each set's channels decoded as a GPU decodes them.
-The levels are kept without the zstd BevyCSharp's collection puts over them, since .NET's library
-has none, so a reader in C# takes the files with no package added.
+The levels are kept with no zstd over them, since .NET's library has none, so a reader in C# takes
+the files with no package added.
 
 `textures.json` beside the sets is the recipe of each, its source files under `.ref/`, which the
 repository leaves out, its size, its maps and what each channel takes, and `build/textures.py`

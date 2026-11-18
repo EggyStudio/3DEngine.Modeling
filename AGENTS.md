@@ -1,6 +1,6 @@
 # Modeling
 
-Modeling is a library both engines, 3DEngine and BevyCSharp, take as a git submodule, for the edit
+Modeling is a library an engine takes as a git submodule, for the edit
 mesh shaped by operations through a selection, its recipes and the `model.*` commands. It references
 no engine, no engine's package and no engine's bridge (NORM.md, N 2.1). What it needs of a renderer,
 a world, a scheduler or a file system it takes through an interface it declares, which each engine

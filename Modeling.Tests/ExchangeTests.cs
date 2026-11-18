@@ -10,9 +10,8 @@ namespace Modeling.Tests;
 /// counted.
 /// </summary>
 /// <remarks>
-/// <c>two-pieces.gltf</c> is written by 3DEngine's <c>build/make-modeling-gltf.py</c>, a cube of a
-/// unit in the material "Stone Wall" and a square in "Grass" on a node moved and scaled, so its
-/// counts are known.
+/// <c>two-pieces.gltf</c> holds a cube of a unit in the material "Stone Wall" and a square in
+/// "Grass" on a node moved and scaled, so its counts are known.
 /// </remarks>
 [Trait("Category", "Unit")]
 public sealed class ExchangeTests : IDisposable
