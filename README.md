@@ -1,4 +1,4 @@
-[Devlog](DEVLOG.md) [Cheat sheet](CHEATSHEET.md)
+[Devlog](https://github.com/EggyStudio/Modeling/blob/main/DEVLOG.md) [Cheatsheet](https://github.com/EggyStudio/Modeling/blob/main/CHEATSHEET.md)
 
 # Modeling
 
@@ -14,7 +14,7 @@ no engine, and each engine implements the interfaces it declares where it binds 
 | `EditMeshBuild` | The mesh with its modifiers applied, built into the vertices and triangles of each slot, each face cut by ear clipping with its own normals and texture coordinates, smoothed within its angle |
 | `MeshVertex` and `Bounds` | A built vertex, its place, normal and texture coordinates, which an engine copies into its own, and a box along the axes |
 | `SlotLook` and `MaterialMap` | What a slot is drawn with, a color, a texture and the maps of a glTF material by their files, metalness, roughness and an emissive color, which an engine loads into a material of its own |
-| `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles and its textures' widths, which an engine implements with its own lookup and model reader, and the files of a folder for the tests and a program with no engine |
+| `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles with their normals, texture coordinates and material's look where the file holds them, its textures' widths and the glTF it is exported as, which an engine implements with its own lookup and model reader, and the files of a folder, which read glTF, for the tests and a program with no engine |
 | `SelectionMode` | Whether a selection replaces what was selected, adds to it or takes from it |
 
 ## Taking it into an engine
@@ -42,6 +42,11 @@ The module shapes a mesh and gives out its data, and an engine draws it, collide
 its materials. Its assembly is `3DEngine.Modeling`, and its types stand in the namespace `Modeling`.
 It opens no window and no graphics device, reads and writes no file but through an interface, and
 declares one interface for what it needs of an engine.
+
+The library takes the Materials module, whose `MaterialDescription` an imported model's materials
+are read as. A Materials checkout beside this one is built where it stands, so a program that takes
+both builds one Materials, and this repository's submodule `modules/Materials` is built where none
+stands beside it.
 
 | Interface | What the engine answers |
 |---|---|
@@ -148,9 +153,10 @@ public static class HostBinding
 
 ## Building and testing
 
-The tests take the checks every module keeps from the Tools module, a git submodule under
-`modules/Tools`, so a clone fetches it with `git clone --recurse-submodules`, or with
-`git submodule update --init` in a clone made without it. With the .NET 10 SDK:
+The library takes the Materials module and the tests take the checks every module keeps from the
+Tools module, git submodules under `modules/Materials` and `modules/Tools`, so a clone fetches them
+with `git clone --recurse-submodules`, or with `git submodule update --init` in a clone made without
+it. With the .NET 10 SDK:
 
 ```bash
 dotnet build Modeling.slnx

@@ -189,11 +189,14 @@ string WriteBytes(string path, byte[] bytes);            // Writes a file of byt
 IReadOnlyList<ModelPart> ReadModel(string path);         // Reads a model file's meshes, each placed as the file's nodes place it
 int? ImageWidth(string path);                            // The width in pixels of an image file, or null where there is no such file or its header cannot be read
 
-record ModelPart                                         // One mesh of a model file, its triangles placed as the file's nodes place it, and its material's name
-ModelPart(IReadOnlyList<Vector3> Positions, IReadOnlyList<int> Indices, string? Material);
+record ModelPart                                         // One mesh of a model file, its triangles placed as the file's nodes place it, its material's name and, where the file holds them, its corners' normals and texture coordinates and its material's look
+ModelPart(IReadOnlyList<Vector3> Positions, IReadOnlyList<int> Indices, string? Material, IReadOnlyList<Vector3>? Normals = null, IReadOnlyList<Vector2>? Uvs = null, MaterialDescription? Look = null);
 IReadOnlyList<Vector3> Positions { get; init; }          // The vertices' places, in meters, in the file's space
 IReadOnlyList<int> Indices { get; init; }                // Three vertices a triangle, counterclockwise seen from the side it faces
 string? Material { get; init; }                          // The name of the mesh's material as the file gives it, or null where it has none
+IReadOnlyList<Vector3>? Normals { get; init; }           // Each vertex's normal in the file's space, a length of one, one for each place, or null
+IReadOnlyList<Vector2>? Uvs { get; init; }               // Each vertex's texture coordinates, the second running down the picture, one for each place, or null
+MaterialDescription? Look { get; init; }                 // The material's look, its color linear and its pictures' paths as the files find them, or null
 
 class ModelFolder                                        // The files of a folder, a relative path read below it and a rooted one as it is, for the tests and for a program with no engine
 ModelFolder(string? root = null);

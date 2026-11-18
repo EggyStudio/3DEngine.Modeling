@@ -33,7 +33,7 @@ public sealed class ModuleTests
 
     [Fact]
     public void The_Library_Takes_No_Engine_Window_Or_Graphics_Api() =>
-        Assert.Null(ModuleChecks.ReferenceFault(Assembly.Load(Library), Deps));
+        Assert.Null(ModuleChecks.ReferenceFault(Assembly.Load(Library), Deps, allowed: ["3DEngine.Materials"]));
 
     [Fact]
     public void No_Public_Name_Or_Its_Documentation_Names_An_Engine() =>

@@ -180,4 +180,58 @@ public sealed class ExchangeTests : IDisposable
         var read = Assert.Throws<FormatException>(() => EditMesh.FromRecipe("import noise.gltf", files: _folder.Files));
         Assert.StartsWith("Line 1 of the recipe", read.Message);
     }
+
+    [Fact]
+    public void A_Models_Material_Looks_Texture_Coordinates_And_Smoothing_Survive_Its_Import()
+    {
+        var made = _folder.Mesh();
+        made.Cylinder(1, 2, 16);
+        made.Shade(true);
+        made.Material("stone");
+        made.SlotColor("stone", new Vector4(0.8f, 0.6f, 0.4f, 1));
+        made.SlotMap("stone", MaterialMap.Albedo, "textures/stone.png");
+        made.SlotMap("stone", MaterialMap.Normal, "textures/stone_n.png");
+        made.SlotMetallic("stone", 0.25f);
+        made.SlotRoughness("stone", 0.5f);
+        made.SlotEmissive("stone", new Vector3(3, 1.5f, 0));
+        made.SelectFacing(Vector3.UnitY);
+        made.UvRotate(30);
+        made.Export("models/pillar.gltf");
+
+        var mesh = _folder.Mesh();
+        mesh.Import("models/pillar.gltf");
+
+        // the slot's look, its color through glTF's linear factor and back to five places
+        var look = mesh.LookOf("stone");
+        Assert.Equal(new Vector4(0.8f, 0.6f, 0.4f, 1), look.Color!.Value, new Vector4Close(1e-4f));
+        Assert.Equal(("textures/stone.png", "textures/stone_n.png"), (look.Texture, look.NormalMap));
+        Assert.Equal((0.25f, 0.5f), (look.Metallic, look.Roughness));
+        Assert.Equal(new Vector3(3, 1.5f, 0), look.Emissive);
+
+        // The cylinder's sixteen sides are smoothed into one another and its ends flat, and the top
+        // keeps the coordinates turned on it.
+        var top = Enumerable.Range(0, mesh.FaceCount).Single(face => mesh.Normal(face).Y > 0.99f);
+        var side = Enumerable.Range(0, mesh.FaceCount).First(face => MathF.Abs(mesh.Normal(face).Y) < 0.01f);
+        Assert.Equal((0f, EditMesh.DefaultSmoothAngle), (mesh.SmoothOf(top), mesh.SmoothOf(side)));
+        var source = Enumerable.Range(0, made.FaceCount).Single(face => made.Normal(face).Y > 0.99f);
+        Assert.Equal(Sorted(made, source), Sorted(mesh, top));
+        Assert.Equal(18, mesh.FaceCount);
+    }
+
+    // A face's corners' places with their texture coordinates, in an order of their own, so two
+    // faces of one outline compare whichever corner each starts from.
+    private static (Vector3, Vector2)[] Sorted(EditMesh mesh, int face) =>
+        [.. mesh.Corners(face).ToArray().Zip(mesh.UvsOf(face)).Select(pair => (Round(mesh.Position(pair.First)), Round(pair.Second)))
+            .OrderBy(corner => (corner.Item1.X, corner.Item1.Y, corner.Item1.Z))];
+
+    private static Vector3 Round(Vector3 value) => new(MathF.Round(value.X, 4), MathF.Round(value.Y, 4), MathF.Round(value.Z, 4));
+
+    private static Vector2 Round(Vector2 value) => new(MathF.Round(value.X, 4), MathF.Round(value.Y, 4));
+
+    private sealed class Vector4Close(float tolerance) : IEqualityComparer<Vector4>
+    {
+        public bool Equals(Vector4 a, Vector4 b) => Vector4.Distance(a, b) <= tolerance;
+
+        public int GetHashCode(Vector4 value) => 0;
+    }
 }

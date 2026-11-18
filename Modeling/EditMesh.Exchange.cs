@@ -45,11 +45,19 @@ public sealed partial class EditMesh
         foreach (var part in parts)
         {
             var slot = part.Material is { } named ? SlotIndex(SlotName(named)) : 0;
+            // A slot that gives nothing takes the material's look, so a model imported into a new
+            // mesh keeps the look its file gave, and a slot given a look of its own keeps it.
+            if (part.Look is { } look && _looks[slot].IsPrototype) _looks[slot] = SlotLookOf(look);
             var vertices = part.Positions.Select(Weld).ToArray();
             for (int i = 0; i + 2 < part.Indices.Count; i += 3)
             {
-                var (a, b, c) = (vertices[part.Indices[i]], vertices[part.Indices[i + 1]], vertices[part.Indices[i + 2]]);
-                if (a != b && b != c && a != c) AddFace([a, b, c], slot);
+                int[] at = [part.Indices[i], part.Indices[i + 1], part.Indices[i + 2]];
+                var (a, b, c) = (vertices[at[0]], vertices[at[1]], vertices[at[2]]);
+                if (a == b || b == c || a == c) continue;
+                var face = AddFace([a, b, c], slot, 0f, part.Uvs is { } uvs ? [uvs[at[0]], uvs[at[1]], uvs[at[2]]] : null);
+                // Smoothed where a corner's normal leans from the face's by more than a degree.
+                var normal = Normal(face);
+                if (part.Normals is { } normals && at.Any(corner => Vector3.Dot(normals[corner], normal) < 0.99985f)) _faces[face].Smooth = DefaultSmoothAngle;
             }
         }
 
@@ -57,8 +65,9 @@ public sealed partial class EditMesh
         // one loop goes round it.
         var imported = Enumerable.Range(first, _faces.Count - first).ToHashSet();
         var planes = imported.ToDictionary(face => face, face => (Normal: Normal(face), Offset: Vector3.Dot(Normal(face), _positions[_faces[face].Corners[0]])));
-        bool InOnePlane(int a, int b) => _faces[a].Slot == _faces[b].Slot
-            && Vector3.Dot(planes[a].Normal, planes[b].Normal) > 1 - 1e-5f && MathF.Abs(planes[a].Offset - planes[b].Offset) < 1e-4f;
+        bool InOnePlane(int a, int b) => _faces[a].Slot == _faces[b].Slot && _faces[a].Smooth == _faces[b].Smooth
+            && Vector3.Dot(planes[a].Normal, planes[b].Normal) > 1 - 1e-5f && MathF.Abs(planes[a].Offset - planes[b].Offset) < 1e-4f
+            && SameCoordinates(_faces[a], _faces[b]);
 
         var going = new HashSet<int>();
         var joined = new List<Face>();
@@ -66,7 +75,17 @@ public sealed partial class EditMesh
         {
             if (group.Length < 2 || Loops(group) is not [var loop]) continue;
             going.UnionWith(group);
-            joined.Add(new Face([.. loop], _faces[group[0]].Slot));
+            // A corner's coordinates are the same in every triangle of the group, as the join asked
+            // of them.
+            Vector2[]? uvs = null;
+            if (_faces[group[0]].Uvs is not null)
+            {
+                var at = new Dictionary<int, Vector2>();
+                foreach (var face in group)
+                    for (int k = 0; k < 3; k++) at.TryAdd(_faces[face].Corners[k], _faces[face].Uvs![k]);
+                uvs = [.. loop.Select(corner => at[corner])];
+            }
+            joined.Add(new Face([.. loop], _faces[group[0]].Slot, _faces[group[0]].Smooth, uvs));
         }
         RemoveFaces(going);
         _faces.AddRange(joined);
@@ -77,6 +96,46 @@ public sealed partial class EditMesh
         foreach (var face in _selectedFaces) _selectedVertices.UnionWith(_faces[face].Corners);
         Compact([]);
         Did($"import {path}");
+    }
+
+    /// <summary>
+    /// Whether two triangles sharing an edge carry one set of texture coordinates, the same at the
+    /// corners they share and the second's far corner where the first's carried across puts it, or
+    /// neither carries any.
+    /// </summary>
+    private bool SameCoordinates(Face one, Face other)
+    {
+        if (one.Uvs is null || other.Uvs is null) return one.Uvs is null && other.Uvs is null;
+        Vector2 Of(Face face, int vertex) => face.Uvs![Array.IndexOf(face.Corners, vertex)];
+        foreach (var vertex in other.Corners)
+            if (Array.IndexOf(one.Corners, vertex) >= 0 && (Of(one, vertex) - Of(other, vertex)).LengthSquared() > 1e-10f) return false;
+
+        if (FitOf(one) is not { } map) return true;
+        var far = other.Corners.First(vertex => Array.IndexOf(one.Corners, vertex) < 0);
+        return (map.At(_positions[far]) - Of(other, far)).LengthSquared() <= 1e-8f;
+    }
+
+    /// <summary>
+    /// A slot's look from a material's, its color from linear back to sRGB to five places, as a
+    /// color picker gives it, its factors, its emission and the paths of its pictures by their
+    /// roles.
+    /// </summary>
+    private static SlotLook SlotLookOf(Materials.MaterialDescription look)
+    {
+        static float Encoded(float value) => MathF.Round(Srgb.Encode(value), 5);
+        string? Path(Materials.PictureRole role) => look.PictureOf(role)?.Picture.Path;
+        return new SlotLook
+        {
+            Color = look.BaseColor == Vector4.One ? null : new Vector4(Encoded(look.BaseColor.X), Encoded(look.BaseColor.Y), Encoded(look.BaseColor.Z), MathF.Round(look.BaseColor.W, 5)),
+            Texture = Path(Materials.PictureRole.BaseColor),
+            NormalMap = Path(Materials.PictureRole.NormalX),
+            OcclusionMap = Path(Materials.PictureRole.Occlusion),
+            MetallicRoughnessMap = Path(Materials.PictureRole.Roughness) ?? Path(Materials.PictureRole.Metallic),
+            EmissiveMap = Path(Materials.PictureRole.Emissive),
+            Metallic = look.Metallic,
+            Roughness = look.Roughness,
+            Emissive = look.Emissive == Vector3.Zero ? null : look.Emissive,
+        };
     }
 
     /// <summary>

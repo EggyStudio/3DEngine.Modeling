@@ -339,3 +339,34 @@ follow, and SlotLook's constructor, which the compiler made; each has a summary 
 source. The four primary constructors of MeshVertex, Bounds, ModelPart and ModelFolder carry no
 comment on their lines, since the writer leaves out a summary that repeats its type's. The tests
 pass, 156 where there were 155 (dotnet test Modeling.Tests).
+
+The import's looks, texture coordinates and smoothing, the part agreed after part 3, in the commit
+carrying this line. Its test, a cylinder exported with a slot's color, two maps, metalness,
+roughness and an emission, its sides smoothed and its top's coordinates turned, and read back
+through ModelFolder, failed before the change on the look's color the import left out.
+
+`ModelPart` is widened once, with `Normals`, `Uvs` and `Look`, each null where a file holds none,
+and the look is Materials' `MaterialDescription`, so no second material type is made. The library
+takes Materials sibling first, `../../Materials` where it stands and the submodule
+`modules/Materials` at `635dcf3` where none does, with a target that names the command where
+neither is there; ModuleTests' reference fact allows `3DEngine.Materials`, and the README and
+AGENTS.md say so by place. The module's glTF reader fills all three, a material's factors with
+glTF's defaults, its emission times its strength, its alpha mode, cutoff and sides, and its
+pictures by their paths from the file's folder in Materials' layouts. The import keeps a corner's
+coordinates as its face's own, smooths a face whose corners' normals lean from its own by more
+than a degree, joins two triangles only where their smoothing and their coordinates agree along
+and across the edge, and gives a slot of the material's name the look where the slot gives none,
+the color encoded back to sRGB to five places.
+
+What an engine's own reader fills for its parts to import as these do: each part's positions in
+the scene's space with three indices a triangle counterclockwise, the material's name, each
+vertex's normal and texture coordinates where its file has them, the second coordinate running down
+the picture, and the material as a `MaterialDescription`, its base color linear, its emission as
+glTF's factor times its strength, and each picture's path as its `IModelFiles` finds it. A part it
+leaves without them imports as before, its faces flat, with world-aligned coordinates and the
+slot's own look. Materials names no unit for glTF's emission, which glTF holds unitless, so the
+module carries it as it is into `Emissive`, which Materials gives in candelas a square meter; an
+engine whose emissive light has those units scales it once.
+
+The README's link row takes the full addresses. The strict build is clean and the tests pass, 157
+where there were 156 (dotnet test Modeling.Tests).

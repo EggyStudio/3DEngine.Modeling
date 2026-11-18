@@ -1,4 +1,5 @@
 using System.Numerics;
+using Materials;
 
 namespace Modeling;
 
@@ -54,9 +55,16 @@ public interface IModelFiles
 }
 
 /// <summary>
-/// One mesh of a model file, its triangles placed as the file's nodes place it, and its material's
-/// name.
+/// One mesh of a model file, its triangles placed as the file's nodes place it, its material's name
+/// and, where the file holds them, its corners' normals and texture coordinates and its material's
+/// look.
 /// </summary>
+/// <remarks>
+/// A reader fills what its file holds and leaves the rest null. The import keeps a corner's
+/// texture coordinates as its face's own, smooths a face whose corners' normals lean from its own
+/// by more than a degree, and gives a slot of the material's name the look where the slot gives
+/// none of its own.
+/// </remarks>
 /// <param name="Positions">The vertices' places, in meters, in the file's space.</param>
 /// <param name="Indices">
 /// Three vertices a triangle, counterclockwise seen from the side it faces.
@@ -64,4 +72,20 @@ public interface IModelFiles
 /// <param name="Material">
 /// The name of the mesh's material as the file gives it, or null where it has none.
 /// </param>
-public sealed record ModelPart(IReadOnlyList<Vector3> Positions, IReadOnlyList<int> Indices, string? Material);
+/// <param name="Normals">
+/// Each vertex's normal in the file's space, a length of one, one for each place, or null.
+/// </param>
+/// <param name="Uvs">
+/// Each vertex's texture coordinates, the second running down the picture, one for each place, or
+/// null.
+/// </param>
+/// <param name="Look">
+/// The material's look, its color linear and its pictures' paths as the files find them, or null.
+/// </param>
+public sealed record ModelPart(
+    IReadOnlyList<Vector3> Positions,
+    IReadOnlyList<int> Indices,
+    string? Material,
+    IReadOnlyList<Vector3>? Normals = null,
+    IReadOnlyList<Vector2>? Uvs = null,
+    MaterialDescription? Look = null);
