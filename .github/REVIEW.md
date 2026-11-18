@@ -449,3 +449,12 @@ wallpaper's from 0.9229, 0.8693 and 0.831 to 0.9261, 0.8722 and 0.834. No other 
 changed. TexturesTests decoded BC7's mode 6 alone and failed on the first mode 1 block, so it
 decodes each set's top levels by Materials' `Ktx2` in place of its own BC7 and BC5 decoders, its
 check of the files' layout kept. The tests pass, 174.
+
+Tools pinned at `4e922ea` in the commit carrying this line, by Tools' `pin.py` run from the Tools
+checkout beside this one, which printed that Tools moved from `75d77f2` by 11 commits, that one
+fact changed, `The_Cheatsheet_Is_What_The_Built_Library_Writes` by `5bf6255` and `460a481`, and
+that CHEATSHEET.md and DEVLOG.md were written again. The fact keeps the form ModuleTests holds. Three
+lines of the cheatsheet change, each a tuple given with its elements' names, `SelectEdges`' edges,
+`EditMeshBuild.Slots`' vertices and indices and `ModelStore.All`'s names and meshes. The devlog it
+wrote is left out of the commit, since it quotes `d20dbc5`'s sentence, pushed before the cheatsheet
+was one word, with the word in two, which the commit check fails. The tests pass, 174.

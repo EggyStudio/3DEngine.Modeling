@@ -101,7 +101,7 @@ void SelectAll();                                        // Selects every vertex
 void SelectNone();                                       // Selects nothing, select none in the recipe
 void SelectInvert();                                     // Selects what was not selected, and leaves what was
 void SelectFaces(ReadOnlySpan<int> faces, SelectionMode mode = SelectionMode.Replace);  // Selects faces by their indices
-void SelectEdges(ReadOnlySpan<(int, int)> edges, SelectionMode mode = SelectionMode.Replace);  // Selects edges by their two ends, which selects the ends
+void SelectEdges(ReadOnlySpan<(int A, int B)> edges, SelectionMode mode = SelectionMode.Replace);  // Selects edges by their two ends, which selects the ends
 void SelectFacing(Vector3 direction, SelectionMode mode = SelectionMode.Replace);  // Selects the faces that face nearest one way along an axis, such as up
 void SelectInside(Vector3 corner, Vector3 opposite, SelectionMode mode = SelectionMode.Replace);  // Selects the vertices inside a box, the faces all of whose corners are inside it, and the edges between
 void SelectSlot(string slot, SelectionMode mode = SelectionMode.Replace);  // Selects the faces in a material slot, a name no slot has selecting none
@@ -148,7 +148,7 @@ void UvDensity(float pixelsPerMeter, int texturePixels);  // Scales the selected
 void UvReset();                                          // Puts the selected faces back on the world-aligned default
 
 class EditMeshBuild                                      // Builds an edit mesh into the vertices and triangles of one mesh for each material slot
-(MeshVertex[], uint[])[] Slots(EditMesh mesh);           // The vertices and triangles of each material slot, in the order of the mesh's slots
+(MeshVertex[] Vertices, uint[] Indices)[] Slots(EditMesh mesh);  // The vertices and triangles of each material slot, in the order of the mesh's slots
 
 record struct MeshVertex                                 // A corner of a built mesh's triangle, its place, its normal and its texture coordinates
 MeshVertex(Vector3 Position, Vector3 Normal, Vector2 Uv);
@@ -228,7 +228,7 @@ Func<string, CommandAnswer> Run { get; init; }           // Runs the command on 
 class ModelStore                                         // The models the commands reach, each by a name of one word, and the files every mesh it makes reads and writes
 ModelStore(IModelFiles? files = null);
 IModelFiles Files { get; }                               // What the meshes the store makes read and write
-IReadOnlyList<(string, EditMesh)> All { get; }           // The models by name, in the order they were named
+IReadOnlyList<(string Name, EditMesh Mesh)> All { get; }  // The models by name, in the order they were named
 bool IsName(string? name);                               // Whether a word is a model's name, one word with no space in it
 EditMesh Make();                                         // Makes an empty mesh that reads and writes through the store's files
 void Name(string name, EditMesh mesh);                   // Gives a mesh a name, in place of the mesh that had it
