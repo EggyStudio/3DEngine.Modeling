@@ -576,3 +576,14 @@ a point written as a float is held exactly and read back the same, and it gains 
 `AddExact`, which the cut takes next to store and read its points as they are. Nothing behaves
 otherwise: the tests pass, 179 with the long wall skipped, and part 1's recipes differ from 3DEngine
 in the same 57.
+
+The drift across cuts, its fourth step, in the commit carrying this line, and the long wall still
+open. A cut reads a face's corners as the mesh keeps them, in doubles, the floats choosing its
+triangles alone, and stores the partition's points as it worked them out, so no point is rounded
+to a float between two cuts. The wall of 200 m with 25 windows keeps its 7 open edges, so its test
+stays skipped with its reason. The drift is not the floats' between cuts: the front's face, which
+reaches round the windows through slits, is cut by ear clipping into triangles so thin that a
+crossing on one lands 1.5e-4 m from the window's own corner however exactly its points are kept.
+Closing it wants a slit face cut otherwise, as convex pieces round each window or by triangles no
+thinner than the join allows. Nothing else behaves otherwise: the tests pass, 179 with the long wall
+skipped, and part 1's recipes differ from 3DEngine in the same 57.

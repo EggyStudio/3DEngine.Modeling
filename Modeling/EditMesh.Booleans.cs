@@ -217,7 +217,8 @@ public sealed partial class EditMesh
         var (points, faces) = FaceMerge.Faces(pieces, join);
 
         _positions.Clear();
-        _positions.AddRange(points.Select(point => new Vector3((float)point.X, (float)point.Y, (float)point.Z)));
+        // The partition's points as it worked them out, so the next cut starts from them unrounded.
+        foreach (var point in points) _positions.AddExact(point);
         _faces.Clear();
         _selectedFaces.Clear();
         _selectedVertices.Clear();
@@ -265,13 +266,14 @@ public sealed partial class EditMesh
             var source = new Csg.Source(mesh._slots[face.Slot], face.Smooth, second, mesh._looks[face.Slot], mesh.FitOf(face));
             for (int t = 0; t < triangles.Length; t += 3)
             {
-                var (a, b, c) = (Point(points[triangles[t]]), Point(points[triangles[t + 1]]), Point(points[triangles[t + 2]]));
+                // The corners as the mesh keeps them, in doubles, the floats choosing the triangles
+                // alone.
+                var (a, b, c) = (mesh._positions.Exact(face.Corners[triangles[t]]), mesh._positions.Exact(face.Corners[triangles[t + 1]]), mesh._positions.Exact(face.Corners[triangles[t + 2]]));
                 if (Csg.Point.Cross(b - a, c - a).Length < 1e-12) continue;
                 yield return new Csg.Polygon([a, b, c], source);
             }
         }
 
-        static Csg.Point Point(Vector3 at) => new(at.X, at.Y, at.Z);
     }
 
     // Cuts a box through the wall whose face was selected first, from a height above its bottom.

@@ -287,7 +287,7 @@ public sealed class BooleanTests : IDisposable
         Assert.InRange(wall.FaceCount, 6, 10 + 8 * 25);
     }
 
-    [Fact(Skip = "Open: a corner 22 m along a wall of 200 m drifts by 1.5e-4 m between cuts, the mesh's points kept as floats and a slit face cut into thin triangles, and 7 edges stay open; REVIEW.md's Replies hold the reading.")]
+    [Fact(Skip = "Open: a corner 22 m along a wall of 200 m meets the window's own corner no longer, with 7 edges open, though the mesh keeps its points in doubles across cuts; REVIEW.md's Replies hold the reading.")]
     public void A_Long_Wall_With_Many_Windows_Stays_Closed_With_Its_Volume()
     {
         // The windows of the wall above along a wall of 200 m, whose front reaches far past them.
