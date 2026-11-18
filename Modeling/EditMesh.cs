@@ -60,7 +60,7 @@ public sealed partial class EditMesh
     /// </summary>
     public IModelFiles Files { get; }
 
-    private readonly List<Vector3> _positions = [];
+    private readonly Points _positions = new();
     private readonly List<Face> _faces = [];
     private readonly List<string> _slots = [DefaultSlot];
     private readonly HashSet<int> _selectedVertices = [];

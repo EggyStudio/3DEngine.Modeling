@@ -562,3 +562,10 @@ The drift across cuts, its first step, a reading in the commit carrying this lin
 files, and a cut makes the partition's points floats again once at its end; the partition and the
 join work in doubles. The steps after it are the uses put behind two accessors, the list made one of
 doubles behind them, the cut storing its points as they are, and the skipped test turned on.
+
+The drift across cuts, its second step, in the commit carrying this line. The mesh's points are an
+internal `Points`, read and written as floats through its indexer with the list's `Count`, `Add`,
+`AddRange` and `Clear`, backed by the same list of floats, so every one of the 155 uses compiles as
+it stood and the next step changes what lies behind the indexer in one file. Nothing behaves
+otherwise: the tests pass, 179 with the long wall skipped, and part 1's 4,004 recipes differ from
+3DEngine in the same 57.

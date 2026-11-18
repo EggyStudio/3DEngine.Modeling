@@ -25,7 +25,7 @@ public sealed partial class EditMesh
     /// </summary>
     private readonly record struct Carried(int[] Corners, Vector2[]? Uvs, UvMap? Fit)
     {
-        public Vector2[]? For(int[] corners, List<Vector3> positions)
+        public Vector2[]? For(int[] corners, IReadOnlyList<Vector3> positions)
         {
             if (Uvs is null) return null;
             var uvs = new Vector2[corners.Length];
