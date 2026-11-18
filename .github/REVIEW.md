@@ -488,3 +488,12 @@ sentences how a caller picks a branch's count round and repeat along at a joint 
 counts leave, 1.33 times for a branch of 0.1 m on a parent of 0.225 m. DEVLOG.md is written again
 with `--commits`, which AGENTS.md's row names. The tests pass, 176 where there were 175 (dotnet test
 Modeling.Tests).
+
+The glTF reader's materials by Materials' import, in the commit carrying this line, Materials pinned
+at `70679ed`. GltfReader asks `MaterialImport.FromGltf` for each material in place of its own look,
+which goes with the image lookup inside it, 55 lines, the reader 359 where it was 414, and its
+buffers beside the file are found by the reader's `Joined` as the pictures were. Three things change
+and a test says each, which failed before on the first: a factor out of glTF's range is refused
+where the reader clamped it, an alpha mode glTF does not name is refused where it was read as
+opaque, and a picture whose path holds a space keeps it where it was left out. The tests pass, 177
+where there were 176 (dotnet test Modeling.Tests).

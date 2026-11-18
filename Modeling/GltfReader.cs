@@ -20,9 +20,9 @@ namespace Modeling;
 /// </para>
 /// <para>
 /// Each material's triangles are one part named as the material is, with the corners' normals and
-/// texture coordinates where every primitive of the part holds them, and the material's look, its
-/// factors and its pictures each found by its path from the file's folder, and the triangles of no
-/// material one part with no name. A picture held inside the file has no path to name and is left.
+/// texture coordinates where every primitive of the part holds them, and the material's look as the
+/// Materials module reads a glTF material, by glTF's rules and defaults, its pictures each found by
+/// its path from the file's folder, and the triangles of no material one part with no name.
 /// Accessors of every component type are read, normalized where they say so, and a sparse accessor
 /// is refused.
 /// </para>
@@ -93,7 +93,9 @@ internal static class GltfReader
 
         var buffers = Array(root, "buffers").Select(buffer => Buffer(buffer, folder, binary, exists, read)).ToArray();
         var file = new Source(root, buffers);
-        var materials = Array(root, "materials").Select(material => (Name: material.TryGetProperty("name", out var named) ? named.GetString() : null, Look: Look(material, folder, root))).ToArray();
+        var named = path.Replace('\\', '/');
+        var materials = Array(root, "materials").Select((material, index) =>
+            (Name: material.TryGetProperty("name", out var name) ? name.GetString() : null, Look: MaterialImport.FromGltf(root, index, named))).ToArray();
         var triangles = new List<Triangle>();
 
         // The default scene's nodes, or every node no other names as a child where there is none.
@@ -212,63 +214,6 @@ internal static class GltfReader
         return Matrix4x4.CreateScale(s[0], s[1], s[2]) * Matrix4x4.CreateFromQuaternion(new Quaternion(r[0], r[1], r[2], r[3])) * Matrix4x4.CreateTranslation(t[0], t[1], t[2]);
     }
 
-    /// <summary>
-    /// A material's look, glTF's defaults where the file gives none, each picture by its path from
-    /// the file's folder.
-    /// </summary>
-    private static MaterialDescription Look(JsonElement material, string folder, JsonElement root)
-    {
-        string? Image(JsonElement owner, string property)
-        {
-            if (!owner.TryGetProperty(property, out var info) || !info.TryGetProperty("index", out var texture)) return null;
-            var textures = Array(root, "textures");
-            if (texture.GetInt32() >= textures.Length || !textures[texture.GetInt32()].TryGetProperty("source", out var source)) return null;
-            var images = Array(root, "images");
-            if (source.GetInt32() >= images.Length || !images[source.GetInt32()].TryGetProperty("uri", out var uri)) return null;
-            var text = uri.GetString() ?? "";
-            if (text.StartsWith("data:", StringComparison.OrdinalIgnoreCase)) return null;
-            var path = Joined(folder, Uri.UnescapeDataString(text));
-            return path.Any(char.IsWhiteSpace) ? null : path;
-        }
-
-        float Factor(JsonElement owner, string info, string property, float otherwise) =>
-            owner.TryGetProperty(info, out var found) && found.TryGetProperty(property, out var value) ? value.GetSingle() : otherwise;
-
-        var pbr = material.TryGetProperty("pbrMetallicRoughness", out var given) ? given : default;
-        var hasPbr = pbr.ValueKind == JsonValueKind.Object;
-        var color = hasPbr ? Numbers(pbr, "baseColorFactor", 1f, 1f, 1f, 1f) : [1f, 1f, 1f, 1f];
-        var emissive = Numbers(material, "emissiveFactor", 0f, 0f, 0f);
-        var strength = material.TryGetProperty("extensions", out var extensions) && extensions.TryGetProperty("KHR_materials_emissive_strength", out var strong)
-            && strong.TryGetProperty("emissiveStrength", out var amount) ? amount.GetSingle() : 1f;
-
-        var pictures = new List<MaterialPicture>();
-        void Picture(string? path, PictureLayout layout)
-        {
-            if (path is not null) pictures.Add(new MaterialPicture(path, layout));
-        }
-        if (hasPbr) Picture(Image(pbr, "baseColorTexture"), PictureLayout.Color);
-        if (hasPbr) Picture(Image(pbr, "metallicRoughnessTexture"), PictureLayout.MetallicRoughness);
-        Picture(Image(material, "normalTexture"), PictureLayout.Normal);
-        Picture(Image(material, "occlusionTexture"), PictureLayout.Occlusion);
-        Picture(Image(material, "emissiveTexture"), PictureLayout.Emissive);
-
-        var alpha = material.TryGetProperty("alphaMode", out var mode) ? mode.GetString() : null;
-        return new MaterialDescription
-        {
-            BaseColor = new Vector4(color[0], color[1], color[2], color[3]),
-            Metallic = hasPbr && pbr.TryGetProperty("metallicFactor", out var metal) ? Math.Clamp(metal.GetSingle(), 0f, 1f) : 1f,
-            Roughness = hasPbr && pbr.TryGetProperty("roughnessFactor", out var rough) ? Math.Clamp(rough.GetSingle(), 0f, 1f) : 1f,
-            Emissive = new Vector3(emissive[0], emissive[1], emissive[2]) * strength,
-            EmissiveUnit = EmissiveUnit.Unitless,
-            NormalScale = Factor(material, "normalTexture", "scale", 1f),
-            OcclusionStrength = Factor(material, "occlusionTexture", "strength", 1f),
-            AlphaMode = alpha switch { "MASK" => AlphaMode.Mask, "BLEND" => AlphaMode.Blend, _ => AlphaMode.Opaque },
-            AlphaCutoff = material.TryGetProperty("alphaCutoff", out var cutoff) ? cutoff.GetSingle() : 0.5f,
-            DoubleSided = material.TryGetProperty("doubleSided", out var sides) && sides.GetBoolean(),
-            Pictures = pictures,
-        };
-    }
-
     // A path from a folder, its steps up and in taken, with forward slashes, a rooted one as it is.
     private static string Joined(string folder, string path)
     {
@@ -299,7 +244,7 @@ internal static class GltfReader
             return Convert.FromBase64String(text[(comma + 1)..]);
         }
 
-        var beside = Path.Combine(folder, Uri.UnescapeDataString(text)).Replace('\\', '/');
+        var beside = Joined(folder, Uri.UnescapeDataString(text));
         if (!exists(beside)) throw new FileNotFoundException($"The buffer {beside} the model names is not there.", beside);
         return read(beside);
     }

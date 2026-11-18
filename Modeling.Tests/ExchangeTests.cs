@@ -237,4 +237,39 @@ public sealed class ExchangeTests : IDisposable
 
         public int GetHashCode(Vector4 value) => 0;
     }
+
+    // A box exported with a texture, its material then edited in the file's JSON.
+    private string Edited(string name, Action<System.Text.Json.Nodes.JsonObject> edit)
+    {
+        var box = _folder.Mesh();
+        box.Box(Vector3.One);
+        box.SlotMap("default", MaterialMap.Albedo, "textures/plain.png");
+        box.Export($"models/{name}.gltf", embedBuffer: true);
+        var path = _folder.File($"models/{name}.gltf");
+        var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        edit(root["materials"]![0]!.AsObject());
+        File.WriteAllText(path, root.ToJsonString());
+        return $"models/{name}.gltf";
+    }
+
+    [Fact]
+    public void A_Material_Is_Read_By_Materials_Rules_Refusing_What_GlTF_Does_Not_Allow()
+    {
+        // a roughness past one is refused, where it was clamped
+        var rough = Edited("rough", material => material["pbrMetallicRoughness"]!["roughnessFactor"] = 1.5);
+        Assert.Throws<FormatException>(() => _folder.Files.ReadModel(rough));
+
+        // an alpha mode glTF does not name is refused, where it was read as opaque
+        var alpha = Edited("alpha", material => material["alphaMode"] = "CUTOUT");
+        Assert.Throws<FormatException>(() => _folder.Files.ReadModel(alpha));
+
+        // a picture whose path holds a space keeps it, where it was left out
+        var spaced = Edited("spaced", material =>
+        {
+            var root = material.Parent!.Parent!.AsObject();
+            root["images"]![0]!["uri"] = "../textures/old%20stone.png";
+        });
+        var look = Assert.Single(_folder.Files.ReadModel(spaced)).Look!;
+        Assert.Equal("textures/old stone.png", look.PictureOf(Materials.PictureRole.BaseColor)?.Picture.Path);
+    }
 }
