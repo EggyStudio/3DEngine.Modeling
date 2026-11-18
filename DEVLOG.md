@@ -13,6 +13,61 @@ A closed half box of 1 by 2 by 2 m mirrored across x = 0, before the mend with 1
 at x = 0 left inside on four edges three faces share, and after it with 10 faces, closed and holding
 8 cubic meters, the faces drawn see-through.
 
+Commits that day
+
+- `def69f0` A tube carries its picture so many times round it and so many meters along it as its
+  caller states, its line naming the wrap where one is given.
+- `a45e5ff` The Tools submodule is moved to its head, the cheatsheet naming each tuple's elements.
+- `9a531f3` The carpet's and the wallpaper's albedos are encoded again by the Materials module's
+  encoder that writes BC7's mode 1 where a block's colors leave one line, the manifest's errors and
+  mean colors following, and the texture test decodes the sets by Materials in place of a decoder of
+  its own.
+- `eb280e3` The README gives a recipe's lines, its header, comments and words, and every operation's
+  line as its command reads it, which a test holds to the commands' usages.
+- `b453f0b` Each element of the documentation stands on a line of its own and no line breaks inside
+  a tag, where a rewrap had joined them.
+- `70033bb` The README tells an engine how its console takes the model commands and its world draws
+  what they show, with the rule a line is read by and the count of commands the module holds.
+- `8946fd5` The model commands run a line on the models a store keeps by name, each answering its
+  text and why it refused, with every usage held to what its command reads.
+- `27e1ae6` A glTF material's emission is read as its factor times its strength with no unit, as
+  Materials names it.
+- `4c6aa15` The cheatsheet is written as one word, and the tests hold the module to the seven checks
+  the Tools submodule gives, the README's link row and a text that names no engine among them.
+- `6671056` The module names no engine in its documents, tests and scripts, each such line said by
+  what it holds or by the module whose format it follows.
+- `9d38d40` An imported model keeps its materials' looks as Materials' description, its faces' own
+  texture coordinates and the smoothing its normals give, the library taking Materials from a
+  checkout beside it or from its own submodule.
+- `9258fbd` An edit mesh is written as a glTF file through its files and a glTF is read into one
+  with no engine, the files gaining a write of bytes for the buffer beside it.
+- `f20cad5` The carpet's and the wallpaper's albedos are encoded again by the Materials module's
+  mended BC7 encoder, the other files of both sets unchanged.
+- `9ab0d03` The devlog is written again by the Tools script with the mirror's reading on its day,
+  the README opens with a link to it, and AGENTS.md names the command that writes it.
+- `108092c` The tests take the checks every module keeps from the Tools submodule, and a clone
+  without the submodule stops with the command that fetches it.
+- `2ada544` The README tells an engine how to bind the module, the interface it implements, the
+  conventions it stands on, a knife's plane through the origin where no point is named among them,
+  and the smallest binding, which is the tests' host word for word.
+- `2d259bf` The tests gain an engine of the smallest kind, its files in memory and its own vertex
+  and material, which binds the module and runs a recipe that joins, imports, textures, saves and
+  loads through it into meshes a slot.
+- `ba89bee` A reading shows a closed half mirrored before and after the mirror's mend, the build's
+  budget comment says what the bound guards, and Python's caches are ignored.
+- `ba5d12d` The edit mesh gains the tube, the selection of edges, the boolean modifier, a repeated
+  smooth and the modifier lines after add, and a mirror takes away a selected face in its plane so a
+  closed half mirrored stays closed.
+- `70944a5` The library builds as the 3DEngine.Modeling assembly with that package id and its tests
+  as 3DEngine.Modeling.Tests, the namespace staying Modeling.
+
+## 2026-11-17
+
+Commits that day
+
+- `163b218` The ignore file's note on the pictures folder names no one, and the guides spell
+  canceled.
+
 ## 2026-11-01
 
 ![](.github/assets/readings/2026-11-01-item-5-carpet.webp)
@@ -33,9 +88,23 @@ Done that day
 
 - Item 5 at `883d624`. Interior textures in the module's bounded collection.
 
+Commits that day
+
+- `2abb761` Names build/textures.py in the build folder's row of AGENTS.md's table of areas.
+- `883d624` Adds a carpet set and a chevron wallpaper set at 1K under Modeling/Textures as KTX2
+  albedo, normal and surface files, built by build/textures.py from their recipes in textures.json,
+  with a test that reads each set's files and decodes its channels.
+
 ## 2026-10-31
 
 Done that day
 
 - Item 1 at `a7da906`. The documents, one commit.
 - Item 2 at `6fb25bb`. The skeleton, one commit after item 1.
+
+Commits that day
+
+- `6fb25bb` The module gains its solution, an empty library whose public members need summaries, a
+  test that it loads, the version at 0.1 and a build workflow on Linux, Windows and macOS.
+- `a7da906` The module gains its documents, AGENTS.md, the README, STYLE.md, COMMITS.md and the code
+  of conduct as the engines keep them, with git's ignore and attribute files.
