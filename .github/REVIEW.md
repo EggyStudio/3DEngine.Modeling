@@ -393,3 +393,19 @@ The emission's unit in the commit carrying this line, Materials pinned at `79eb4
 `68a0a93`. The glTF reader writes a material's emission as glTF's factor times its strength with
 `EmissiveUnit.Unitless`, and the import's test reads it so, which failed on `Luminance` before the
 line was added. The README's conventions say the emission is unitless. The tests pass, 159.
+
+Item 3's fourth part, the model commands, its first commit in the commit carrying this line.
+`ModelCommands` runs a line over a `ModelStore` and an `IModelScene`, its `All` holding a
+`ModelCommand` for each operation of the recipe and those that make, name, read, write, show and
+forget a model, each with its name, a summary, its usage and what runs it, answering a
+`CommandAnswer`, its text and a `CommandFailure` with its code where it refused. A line is split at
+spaces and tabs with no quoting and its numbers read in the invariant culture, as the class's
+remarks say. A usage is written in a grammar the class gives, and CommandUsageTests holds each to
+its parser, every command's examples matching its usage and done on a fresh model, every word a
+usage names taken by one of them, and a line a usage does not read refused by its command too.
+ModelCommandsTests runs the house, a save and a load, every refusal by its code, a program's mesh
+by its name, a model shown and forgotten through a scene that keeps what it was told, a density read
+from its slot's texture and an export through the store's files. A line a command refuses makes no
+model, and the modifier's refusal names `add` and `boolean`. The README's table names the six types
+and CHEATSHEET.md is written again. The tests pass, 168 where there were 159 (dotnet test
+Modeling.Tests).

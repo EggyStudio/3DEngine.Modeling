@@ -16,6 +16,9 @@ implements the interface it declares where it binds the module.
 | `SlotLook` and `MaterialMap` | What a slot is drawn with, a color, a texture and the maps of a glTF material by their files, metalness, roughness and an emissive color, which an engine loads into a material of its own |
 | `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles with their normals, texture coordinates and material's look where the file holds them, its textures' widths and the glTF it is exported as, which an engine implements with its own lookup and model reader, and the files of a folder, which read glTF, for the tests and a program with no engine |
 | `SelectionMode` | Whether a selection replaces what was selected, adds to it or takes from it |
+| `ModelCommands`, `ModelCommand` and `ModelStore` | The model commands, one for each operation of the recipe and those that make, name, read, write, show and forget a model, each a name, a summary, a usage and what runs it, run on the models a store keeps by name, a program's own among them |
+| `CommandAnswer` and `CommandFailure` | What a command answers, the text a script reads and why it was refused, as a code a console takes |
+| `IModelScene` | What the commands ask of an engine's world, to draw a model at a point and to take away what draws it |
 
 ## Taking it into an engine
 

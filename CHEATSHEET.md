@@ -212,4 +212,47 @@ enum SelectionMode                                       // What a selection of 
 Replace = 0,                                             // What it picks is all that is selected after it
 Add = 1,                                                 // What it picks is selected as well as what was
 Remove = 2,                                              // What it picks is taken out of the selection, and the rest stays as it was
+
+class ModelCommands                                      // The model commands, one for each operation of an edit mesh's recipe and those that make, name, read, write, show and forget a model, run on the models of a ModelStore
+ModelCommands(ModelStore store, IModelScene scene, Func<string, Vector4>? prototypeColor = null);  // Makes the commands over a store's models and an engine's world
+IReadOnlyList<ModelCommand> All { get; }                 // Every command, those of the store first and then one for each operation of the recipe
+CommandAnswer Run(string line);                          // Runs a line, its command's name and then its words, and answers what the command answers
+
+record ModelCommand                                      // One model command, its name, what it does, the words it takes and what runs it
+ModelCommand(string Name, string Summary, string Usage, Func<string, CommandAnswer> Run);
+string Name { get; init; }                               // The command's name, as model.box, the line's first word
+string Summary { get; init; }                            // What the command does, a sentence a console's help shows
+string Usage { get; init; }                              // The words the command takes, its name first, in the grammar ModelCommands gives
+Func<string, CommandAnswer> Run { get; init; }           // Runs the command on the words of a line after its name
+
+class ModelStore                                         // The models the commands reach, each by a name of one word, and the files every mesh it makes reads and writes
+ModelStore(IModelFiles? files = null);
+IModelFiles Files { get; }                               // What the meshes the store makes read and write
+IReadOnlyList<(string, EditMesh)> All { get; }           // The models by name, in the order they were named
+bool IsName(string? name);                               // Whether a word is a model's name, one word with no space in it
+EditMesh Make();                                         // Makes an empty mesh that reads and writes through the store's files
+void Name(string name, EditMesh mesh);                   // Gives a mesh a name, in place of the mesh that had it
+EditMesh? Find(string name);                             // The mesh of a name, or null where no model has it
+bool Forget(string name);                                // Forgets a name, and says whether a model had it
+
+record CommandAnswer                                     // What a model command answers, the text a script reads and why it was refused where it was
+CommandAnswer(string Text, CommandFailure? Failure = null);
+string Text { get; init; }                               // The answer, a model's counts after an operation, or why the line was refused
+CommandFailure? Failure { get; init; }                   // Why the line was refused, or null where it was done
+bool Done { get; }                                       // Whether the line was done
+string? Code { get; }                                    // The failure as a code of capitals and underscores, as NO_SUCH_MODEL, which a console that names its failures so takes as it is, or null where the line was done
+
+enum CommandFailure                                      // Why a model command refused its line
+BadArgument = 0,                                         // A word of the line is not what the command takes, or the operation refused it
+NoSuchCommand = 1,                                       // The line names no command of ModelCommands
+NoSuchModel = 2,                                         // No model has the name, which an operation that makes no model needs
+NothingToUndo = 3,                                       // The model has no operation to take back
+NothingToRedo = 4,                                       // The model has no operation taken back to do again
+NoSuchFile = 5,                                          // There is no file at the path a load names
+BadFile = 6,                                             // The file a load names is not a model's recipe, or a line of it fails
+NotWritten = 7,                                          // A file could not be written
+
+interface IModelScene                                    // What the model commands ask of an engine's world, to draw a model and to take away what draws it
+void Show(string name, EditMesh mesh, Vector3 at);       // Draws a model at a point in the world, in meters, or moves it there where it is drawn already
+void Forget(string name);                                // Takes away what draws a model, where anything does
 ```

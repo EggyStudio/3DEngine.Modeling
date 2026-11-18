@@ -416,7 +416,7 @@ public sealed partial class EditMesh
                     mesh.ModifierApply(Count());
                     return;
                 default:
-                    throw new FormatException($"modifier {what} is none of mirror, array, bevel, subdivision, solidify, triangulate, move, remove or apply.");
+                    throw new FormatException($"modifier {what} is none of add, mirror, array, bevel, subdivision, solidify, triangulate, boolean, move, remove or apply.");
             }
         }
 
