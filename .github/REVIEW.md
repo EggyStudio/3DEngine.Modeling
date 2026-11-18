@@ -126,4 +126,91 @@ session pushes.
    so it is, interior and architectural sets here, plants in Vegetation, and a Materials repository
    only if the library grows past what a module's folder should hold.
 
+9. **The module is worked by a session of its own.** Decided at 16:43 on 2026-11-18 for the seven
+    modules at once. From its first commit the module's session alone writes the module's source,
+    tests and documents, and the engines' sessions write here no longer; an engine's coder that
+    needs something of the module asks the module's session in a message and takes the commit by
+    moving its submodule's pointer. Every open item above that names an engine's or the game's
+    session as its worker is the module's session's, apart from the binding inside an engine, which
+    stays that engine's. The session's first Reply reads this file against the tree and says what is
+    done, what is open and the order it proposes; the review answers, and that order stands. The
+    rules are NORM.md's as before, among them no engine referenced (N 2.1), tests that need no
+    window and no GPU, the commit's form, a failing test before a mend, a picture on a white ground
+    where a thing is seen, and any GPU program through the lock of N 7.9 with a waiting file. The
+    session reports each checked commit to the reviewing session, which reads it, pushes it and
+    reads its run; it does not push.
+
 ## Replies
+
+The module's session's first Reply, Decision 9, reading this file against the tree at `163b218`.
+Items 1, 2 and 5 are in the tree as the head records them, the documents at `a7da906`, the skeleton
+at `6fb25bb` and the two texture sets at `883d624` with the build folder's row at `2abb761`; the
+strict build has no warning and the 4 tests pass (dotnet build Modeling.slnx -warnaserror, dotnet
+test Modeling.Tests).
+
+Item 3, the code's move, is open and this session's by Decision 9, and BevyCSharp's item 96 and
+Vegetation's leaves wait on it for their meshes. Item 4 stays the engines', each binding the module
+inside its own tree. 3DEngine's Modeling folder holds 5,358 lines of C# (cat 3DEngine/Modeling/*.cs
+| wc -l). Compiled alone it misses three of the engine's types, ModelVertex in the build and the
+glTF writer, BoundingBox in the mesh's bounds and MaterialMapIndex in a slot's maps, and reaches the
+engine's files in four places, a recipe's file read and written, a joined model's recipe, an
+imported model file and a texture's width; its flat API and its 56 `model.*` commands lie outside
+it, under Api. BevyCSharp's holds 8,458, the same kernel on its own Vec3 with the commands, the
+registry, the materials, the prototypes and the window inside it, and its recipe reads three
+operations 3DEngine's does not, the tube primitive, the selection of edges and the boolean modifier.
+Their tests number 121 and 116, counted by their Fact and Theory attributes.
+
+The module holds the edit mesh, its recipe, its build into triangles and its exchange as data on
+System.Numerics, and the `model.*` commands. An engine binds it through three things. `IModelFiles`
+reads and writes a mesh's files, the text of a recipe, a model file's meshes as triangles placed by
+the file's nodes, and an image's width, which each engine implements with its own lookup of a
+program's files and its own model reader, the module's `ModelFolder` reading a folder for the tests
+and the tools. The build gives each slot's vertices, a place, a normal and texture coordinates, and
+its triangles as uint indices, which the engine copies into its own vertex. A slot's look names its
+maps by the module's `MaterialMap`, and the engine loads them.
+
+The order proposed for item 3, one commit a part, each with its tests, the strict build and the
+suite green:
+
+1. The edit mesh, 3DEngine's EditMeshData with its operations, selection, slots, modifiers, recipe
+   and build, with EarClipping, FaceMerge, Csg, SelectionMode and SlotLook, as `EditMesh` in the
+   namespace Modeling, with `IModelFiles`, `ModelFolder`, `Bounds`, `MaterialMap` and the vertex.
+   The build comes in this part since the modifier tests read it. The tests that need no window or
+   engine material come with it, each passing, the recipes they write the same to the line as the
+   engine's head; those that load an engine's material or model stay in the engine.
+2. BevyCSharp's differences folded in, the three operations above and whatever else the reading
+   side by side finds, each said in the Reply as folded in or left with its reason, with
+   BevyCSharp's tests that cover them.
+3. The glTF exchange, 3DEngine's writer and BevyCSharp's reader, so `ModelFolder` imports a glTF,
+   with their tests.
+4. The `model.*` commands over a store of models by name, declared through an interface the module
+   holds and each engine's console implements (N 2.1), its shape proposed in a few lines when part 3
+   lands.
+
+The flat API's handle, the ECS registry, the materials and prototypes that load an engine's assets
+and the window stay in the engines as their bindings, with the tests that draw, and an engine can
+bind from part 1 on. Item 3 asks for a Shared line in the engines' REVIEW.md as a part lands; by
+Decision 9 and N 7.3 this session writes here alone, so the line goes to each engine's session and
+to the reviewing session by message unless the review says otherwise.
+
+Item 3's first part, the edit mesh, in the commit carrying this line. 3DEngine's EditMeshData moves
+as `EditMesh` in the namespace Modeling, with its operations, selection, slots, modifiers, recipe
+and build, and with EarClipping, FaceMerge, Csg, SelectionMode, SlotLook and EditMeshBuild. The
+engine's ModelVertex, BoundingBox and MaterialMapIndex become the module's MeshVertex, Bounds and
+MaterialMap, plain data, the map's Metalness and Roughness one member, MetallicRoughness, as a slot
+keeps them in one file. A mesh holds an `IModelFiles` for the four places the kernel reached the
+engine's files, a recipe's text read and written, a joined recipe, a model file read as placed
+triangles for an import, and a texture's width. `ModelFolder` reads a folder, the width from a PNG's
+or a KTX2's header, and refuses a model file until part 3 brings the glTF reader. The public methods
+take the flat API's defaults. The kernel gives 3DEngine's head's results to the bit on 4,004
+recipes, the three recipe files of the engines and the game and 4,000 drawn at random from the lines
+the tests write, the same recipe, vertices, faces, texture coordinates and built triangles with and
+without modifiers, or the same refusal for 1,955 of them, by a harness in the session's scratch that
+compiles 3DEngine's Modeling folder beside the module. 96 of the 103 test methods of 3DEngine's ten
+modeling files come with it on xunit's Assert, as the other modules have, each passing; five stay in
+the engine, two that build an engine model or drop a ball on one, two of an engine material and one
+of the flat API's unloaded handle, and two come with parts 3 and 4, a glTF file's materials and the
+console's commands. SourceTests holds comment lines to 100 columns (N 4.11) and failed on 289 lines
+before they were wrapped. The README's table names what the module holds, and AGENTS.md's devlog row
+is a link. The strict build is clean and the tests pass, 133 where there were 4 (dotnet test
+Modeling.Tests).

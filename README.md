@@ -4,6 +4,17 @@ Modeling is a library both engines, 3DEngine and BevyCSharp, take as a git submo
 mesh shaped by operations through a selection, its recipes and the `model.*` commands. It references
 no engine, and each engine implements the interfaces it declares where it binds the module.
 
+## What it holds
+
+| Type | Gives |
+|---|---|
+| `EditMesh` | A polygon mesh shaped by primitives and by operations on its selection, its faces of any count kept whole, its material slots, its modifiers, and its recipe, the line each operation writes, which is its undo and its file and makes the mesh again when it is run |
+| `EditMeshBuild` | The mesh with its modifiers applied, built into the vertices and triangles of each slot, each face cut by ear clipping with its own normals and texture coordinates, smoothed within its angle |
+| `MeshVertex` and `Bounds` | A built vertex, its place, normal and texture coordinates, which an engine copies into its own, and a box along the axes |
+| `SlotLook` and `MaterialMap` | What a slot is drawn with, a color, a texture and the maps of a glTF material by their files, metalness, roughness and an emissive color, which an engine loads into a material of its own |
+| `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles and its textures' widths, which an engine implements with its own lookup and model reader, and the files of a folder for the tests and a program with no engine |
+| `SelectionMode` | Whether a selection replaces what was selected, adds to it or takes from it |
+
 ## Taking it into an engine
 
 An engine adds the repository as a git submodule under `modules/` and references its project, here

@@ -40,8 +40,8 @@ public class TexturesTests
             Assert.Equal(255, color[i]);
         AssertMeans(entry.GetProperty("color"), color, 4, $"{name}'s color");
 
-        // The normal's X and Y, each texel's a unit normal's with Z left over, flat where the recipe
-        // names no normal map and varying where it does.
+        // The normal's X and Y, each texel's a unit normal's with Z left over, flat where the
+        // recipe names no normal map and varying where it does.
         int smallWidth = Math.Max(width / 2, 4), smallHeight = Math.Max(height / 2, 4);
         var normal = DecodeBc5(Read(name, "normal.ktx2", Bc5, smallWidth, smallHeight), smallWidth, smallHeight);
         var slopes = new HashSet<(byte, byte)>();
@@ -116,7 +116,9 @@ public class TexturesTests
         return top;
     }
 
-    /// <summary>BC7 blocks decoded to RGBA, each in mode 6, the only mode the build writes.</summary>
+    /// <summary>
+    /// BC7 blocks decoded to RGBA, each in mode 6, the only mode the build writes.
+    /// </summary>
     private static byte[] DecodeBc7(byte[] blocks, int width, int height)
     {
         ReadOnlySpan<int> weights = [0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64];
