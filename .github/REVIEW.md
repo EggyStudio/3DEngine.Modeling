@@ -569,3 +569,10 @@ internal `Points`, read and written as floats through its indexer with the list'
 it stood and the next step changes what lies behind the indexer in one file. Nothing behaves
 otherwise: the tests pass, 179 with the long wall skipped, and part 1's 4,004 recipes differ from
 3DEngine in the same 57.
+
+The drift across cuts, its third step, in the commit carrying this line. `Points` keeps the mesh's
+points in doubles, the partition's own `Csg.Point`, its indexer still reading and writing floats, so
+a point written as a float is held exactly and read back the same, and it gains `Exact` and
+`AddExact`, which the cut takes next to store and read its points as they are. Nothing behaves
+otherwise: the tests pass, 179 with the long wall skipped, and part 1's recipes differ from 3DEngine
+in the same 57.
