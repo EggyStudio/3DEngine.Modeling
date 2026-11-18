@@ -106,7 +106,7 @@ public sealed class ModelCommands
         yield return Operation("arch", "Adds an arch.", $"<radius> <thickness> <depth> <sides> {Placed}", makes: true);
         yield return Operation("room", "Adds a hollow room.", $"{Point} <thickness> {Placed}", makes: true);
         yield return Operation("ramp", "Adds a ramp rising along Z.", $"<rise> <run> <width> {Placed}", makes: true);
-        yield return Operation("tube", "Adds a tube along a chain of points, round about each by its radius.", "<sides> (<x y z radius>)...", makes: true);
+        yield return Operation("tube", "Adds a tube along a chain of points, round about each by its radius.", "<sides> [wrap <around> <along>] (<x y z radius>)...", makes: true);
         yield return Operation("select", "Selects faces, edges or vertices by what they are or where they lie.",
             "(all | none | invert | [(add | remove)] (face (<face>)... | edge (<a b>)... | <side> | box <x0 y0 z0 x1 y1 z1> | slot <slot>))");
         yield return Operation("move", "Moves the selection.", Point);

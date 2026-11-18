@@ -88,7 +88,7 @@ void Cone(float radius, float height, int sides, Vector3 at = default, bool cent
 void Wedge(Vector3 size, Vector3 at = default, bool centered = false);  // Adds a wedge, a box cut through from one bottom edge to the opposite top edge, nothing tall at its lowest Z and its full height at its highest, so it rises as stairs do
 void Stairs(int steps, float rise, float run, float width, Vector3 at = default, bool centered = false);  // Adds a flight of stairs rising along Z, closed underneath
 void Arch(float radius, float thickness, float depth, int sides, Vector3 at = default, bool centered = false);  // Adds an arch, half a ring standing on its two feet, its opening along Z, twice the radius wide along X and the radius tall, its front and back one face each
-void Tube(IReadOnlyList<Vector3> points, IReadOnlyList<float> radii, int sides);  // Adds a tube along a chain of points, round about each with a radius of its own, as a branch or a pipe is, and closed at both ends
+void Tube(IReadOnlyList<Vector3> points, IReadOnlyList<float> radii, int sides, TubeWrap? wrap = null);  // Adds a tube along a chain of points, round about each with a radius of its own, as a branch or a pipe is, and closed at both ends
 bool Undo();                                             // Takes back the last operation, by making the mesh again from the lines before it, and says whether there was one
 bool Redo();                                             // Does again the operation last taken back, and says whether there was one, an operation done after an undo forgetting what was taken back
 void Run(string line);                                   // Runs one line of a recipe on the mesh, as though its operation were called, a comment after # left out
@@ -212,6 +212,11 @@ enum SelectionMode                                       // What a selection of 
 Replace = 0,                                             // What it picks is all that is selected after it
 Add = 1,                                                 // What it picks is selected as well as what was
 Remove = 2,                                              // What it picks is taken out of the selection, and the rest stays as it was
+
+record struct TubeWrap                                   // How a tube's texture coordinates carry a picture, how many times round it and how many meters of the tube one repeat runs along it
+TubeWrap(float Around, float Along);
+float Around { get; init; }                              // How many times the picture goes round the tube, above zero
+float Along { get; init; }                               // How many meters along the tube one repeat of the picture runs, above zero
 
 class ModelCommands                                      // The model commands, one for each operation of an edit mesh's recipe and those that make, name, read, write, show and forget a model, run on the models of a ModelStore
 ModelCommands(ModelStore store, IModelScene scene, Func<string, Vector4>? prototypeColor = null);  // Makes the commands over a store's models and an engine's world

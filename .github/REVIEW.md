@@ -458,3 +458,14 @@ lines of the cheatsheet change, each a tuple given with its elements' names, `Se
 `EditMeshBuild.Slots`' vertices and indices and `ModelStore.All`'s names and meshes. The devlog it
 wrote is left out of the commit, since it quotes `d20dbc5`'s sentence, pushed before the cheatsheet
 was one word, with the word in two, which the commit check fails. The tests pass, 174.
+
+The tube's wrap in the commit carrying this line, the third of the three items agreed after item 3.
+Its test, a tube of 2 m wrapped twice round and every half meter along, its coordinates running
+from 0 to 2 round it and to 4 along it, its line read back and a tube with no wrap keeping its line,
+failed before on there being no `TubeWrap`. `EditMesh.Tube` takes a `TubeWrap`, how many times its
+picture goes round and how many meters one repeat runs along, and its line `tube SIDES wrap AROUND
+ALONG` and on names it where given, so every line saved before reads as it did. A wrap of no count
+or no length is refused. The command's usage, the README's line and its table follow, and
+CHEATSHEET.md is written again. A tube's caller states the density its picture was made for, its
+own manifest's repeat in meters, which the module holds nothing of. The tests pass, 175 where there
+were 174 (dotnet test Modeling.Tests).

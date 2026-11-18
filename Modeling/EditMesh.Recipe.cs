@@ -576,6 +576,7 @@ public sealed partial class EditMesh
         private void Tube(EditMesh mesh)
         {
             var sides = Count();
+            TubeWrap? wrap = Optional("wrap") ? new TubeWrap(Number(), Number()) : null;
             var points = new List<Vector3>();
             var radii = new List<float>();
             while (_at < words.Length)
@@ -583,7 +584,7 @@ public sealed partial class EditMesh
                 points.Add(Vector());
                 radii.Add(Number());
             }
-            mesh.Tube(points, radii, sides);
+            mesh.Tube(points, radii, sides, wrap);
         }
 
         private Vector3 Vector() => new(Number(), Number(), Number());

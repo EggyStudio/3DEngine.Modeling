@@ -16,6 +16,7 @@ implements the interface it declares where it binds the module.
 | `SlotLook` and `MaterialMap` | What a slot is drawn with, a color, a texture and the maps of a glTF material by their files, metalness, roughness and an emissive color, which an engine loads into a material of its own |
 | `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles with their normals, texture coordinates and material's look where the file holds them, its textures' widths and the glTF it is exported as, which an engine implements with its own lookup and model reader, and the files of a folder, which read glTF, for the tests and a program with no engine |
 | `SelectionMode` | Whether a selection replaces what was selected, adds to it or takes from it |
+| `TubeWrap` | How a tube's texture coordinates carry a picture, how many times round it and how many meters one repeat runs along it |
 | `ModelCommands`, `ModelCommand` and `ModelStore` | The model commands, one for each operation of the recipe and those that make, name, read, write, show and forget a model, each a name, a summary, a usage and what runs it, run on the models a store keeps by name, a program's own among them |
 | `CommandAnswer` and `CommandFailure` | What a command answers, the text a script reads and why it was refused, as a code a console takes |
 | `IModelScene` | What the commands ask of an engine's world, to draw a model at a point and to take away what draws it |
@@ -245,7 +246,7 @@ The operations and their lines are these.
 - `arch <radius> <thickness> <depth> <sides> [at <x y z>] [center]`, adds an arch.
 - `room <x y z> <thickness> [at <x y z>] [center]`, adds a hollow room.
 - `ramp <rise> <run> <width> [at <x y z>] [center]`, adds a ramp rising along Z.
-- `tube <sides> (<x y z radius>)...`, adds a tube along a chain of points, round about each by its radius.
+- `tube <sides> [wrap <around> <along>] (<x y z radius>)...`, adds a tube along a chain of points, round about each by its radius.
 - `select (all | none | invert | [(add | remove)] (face (<face>)... | edge (<a b>)... | <side> | box <x0 y0 z0 x1 y1 z1> | slot <slot>))`, selects faces, edges or vertices by what they are or where they lie.
 - `move <x y z>`, moves the selection.
 - `rotate (x | y | z | <ax ay az>) <degrees> [at <x y z>]`, turns the selection.

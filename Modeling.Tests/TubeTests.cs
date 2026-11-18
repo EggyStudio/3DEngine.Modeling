@@ -99,4 +99,30 @@ public sealed class TubeTests
         Assert.Throws<ArgumentOutOfRangeException>(() => Tube([Vector3.Zero, Vector3.UnitY], [1f, 1f], 2));
         Assert.Throws<FormatException>(() => new EditMesh().Run("tube 4 0 0 0 1 0 1 0"));
     }
+
+    [Fact]
+    public void A_Tube_Wrapped_At_A_Stated_Density_Carries_Its_Picture_So_Many_Times_Round_And_Along()
+    {
+        // Two meters of tube, its picture twice round it and once every half meter along it, so
+        // four times from end to end.
+        var mesh = new EditMesh();
+        mesh.Tube([Vector3.Zero, new Vector3(0, 2, 0)], [0.5f, 0.5f], 8, new TubeWrap(2, 0.5f));
+        var sides = Enumerable.Range(0, 8).SelectMany(face => mesh.UvsOf(face)).ToArray();
+        Assert.Equal((0f, 2f), (sides.Min(uv => uv.X), sides.Max(uv => uv.X)));
+        Assert.Equal(0f, sides.Min(uv => uv.Y));
+        Assert.Equal(4f, sides.Max(uv => uv.Y), 4);
+
+        // Its line names the wrap, which reads back, and a tube with none keeps the line it had.
+        var line = Assert.Single(mesh.Recipe);
+        Assert.StartsWith("tube 8 wrap 2 0.5 0 0 0 0.5 ", line);
+        var again = new EditMesh();
+        again.Run(line);
+        Assert.Equal(mesh.UvsOf(3), again.UvsOf(3));
+        var plain = new EditMesh();
+        plain.Tube([Vector3.Zero, new Vector3(0, 2, 0)], [0.5f, 0.5f], 8);
+        Assert.StartsWith("tube 8 0 0 0 0.5 ", Assert.Single(plain.Recipe));
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => new EditMesh().Tube([Vector3.Zero, Vector3.UnitY], [1f, 1f], 4, new TubeWrap(0, 1)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new EditMesh().Tube([Vector3.Zero, Vector3.UnitY], [1f, 1f], 4, new TubeWrap(1, -1)));
+    }
 }

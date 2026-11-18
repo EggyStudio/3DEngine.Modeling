@@ -271,6 +271,10 @@ public sealed partial class EditMesh
     /// How far its round side is from its middle at each point, above zero, one for each point.
     /// </param>
     /// <param name="sides">How many sides its round side has, three or more.</param>
+    /// <param name="wrap">
+    /// How many times its texture coordinates carry a picture round it and how many meters one
+    /// repeat runs along it, or null for once round and its first ring's circumference along.
+    /// </param>
     /// <remarks>
     /// <para>
     /// A ring of <paramref name="sides"/> corners stands across the chain at each point, square to
@@ -288,23 +292,29 @@ public sealed partial class EditMesh
     /// </para>
     /// <para>
     /// It stands where its points are, which are in the mesh's space, and its line in the recipe
-    /// holds every point and radius, <c>tube SIDES X Y Z RADIUS X Y Z RADIUS</c> and on.
+    /// holds every point and radius, <c>tube SIDES X Y Z RADIUS X Y Z RADIUS</c> and on, with
+    /// <c>wrap AROUND ALONG</c> after the sides where a wrap is given.
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The sides are under three, or a radius is not above zero.
+    /// The sides are under three, a radius is not above zero, or a wrap's count or length is not.
     /// </exception>
     /// <exception cref="ArgumentException">
     /// There are under two points, a radius is missing for a point, a point is not a place, or two
     /// points that follow one another are at one place.
     /// </exception>
-    public void Tube(IReadOnlyList<Vector3> points, IReadOnlyList<float> radii, int sides)
+    public void Tube(IReadOnlyList<Vector3> points, IReadOnlyList<float> radii, int sides, TubeWrap? wrap = null)
     {
         ArgumentNullException.ThrowIfNull(points);
         ArgumentNullException.ThrowIfNull(radii);
         ArgumentOutOfRangeException.ThrowIfLessThan(sides, 3);
         if (points.Count < 2) throw new ArgumentException("A tube runs through two points or more.", nameof(points));
         if (radii.Count != points.Count) throw new ArgumentException($"A tube has a radius for each of its {points.Count} points, and {radii.Count} were given.", nameof(radii));
+        if (wrap is { } given)
+        {
+            if (!(given.Around > 0) || !float.IsFinite(given.Around)) throw new ArgumentOutOfRangeException(nameof(wrap), given.Around, "A tube's picture goes round it a finite number of times above zero.");
+            if (!(given.Along > 0) || !float.IsFinite(given.Along)) throw new ArgumentOutOfRangeException(nameof(wrap), given.Along, "A repeat of a tube's picture runs a finite length above zero along it.");
+        }
 
         var count = points.Count;
         for (var i = 0; i < count; i++)
@@ -353,7 +363,7 @@ public sealed partial class EditMesh
 
         // Each side runs round its near ring and back along its far one, which faces it out, as a
         // prism's sides do, and the ends run their rings backwards and forwards.
-        var round = MathF.Tau * radii[0];
+        var (around, round) = wrap is { } density ? (density.Around, density.Along) : (1f, MathF.Tau * radii[0]);
         for (var i = 0; i < count - 1; i++)
         {
             var near = first + i * sides;
@@ -361,7 +371,7 @@ public sealed partial class EditMesh
             for (var side = 0; side < sides; side++)
             {
                 var next = (side + 1) % sides;
-                var (u, uNext) = ((float)side / sides, (float)(side + 1) / sides);
+                var (u, uNext) = (around * side / sides, around * (side + 1) / sides);
                 var (v, vFar) = (along[i] / round, along[i + 1] / round);
                 AddFace([near + side, near + next, far + next, far + side], smooth: 180f, uvs: [new(u, v), new(uNext, v), new(uNext, vFar), new(u, vFar)]);
             }
@@ -377,6 +387,7 @@ public sealed partial class EditMesh
         Changed();
 
         var line = new System.Text.StringBuilder("tube ").Append(sides);
+        if (wrap is { } named) line.Append(" wrap ").Append(F(named.Around)).Append(' ').Append(F(named.Along));
         for (var i = 0; i < count; i++) line.Append(' ').Append(V(points[i])).Append(' ').Append(F(radii[i]));
         Did(line.ToString());
     }
