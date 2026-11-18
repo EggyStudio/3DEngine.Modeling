@@ -24,8 +24,8 @@ public sealed partial class EditMesh
     /// recipe is run, as a join reads its model's recipe.
     /// </para>
     /// </remarks>
-    /// <exception cref="FileNotFoundException">There is no such file.</exception> <exception
-    /// cref="FormatException">The file is not a model the mesh's files read.</exception>
+    /// <exception cref="FileNotFoundException">There is no such file.</exception>
+    /// <exception cref="FormatException">The file is not a model the mesh's files read.</exception>
     public void Import(string path)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);

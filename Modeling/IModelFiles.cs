@@ -17,9 +17,9 @@ namespace Modeling;
 /// </remarks>
 public interface IModelFiles
 {
-    /// <summary>Reads a text file whole, a recipe's.</summary> <exception
-    /// cref="FileNotFoundException">There is no such file.</exception> <exception
-    /// cref="IOException">The file could not be read.</exception>
+    /// <summary>Reads a text file whole, a recipe's.</summary>
+    /// <exception cref="FileNotFoundException">There is no such file.</exception>
+    /// <exception cref="IOException">The file could not be read.</exception>
     string ReadText(string path);
 
     /// <summary>
@@ -43,8 +43,8 @@ public interface IModelFiles
     string WriteBytes(string path, byte[] bytes);
 
     /// <summary>Reads a model file's meshes, each placed as the file's nodes place it.</summary>
-    /// <exception cref="FileNotFoundException">There is no such file.</exception> <exception
-    /// cref="FormatException">The file is not a model this reader takes.</exception>
+    /// <exception cref="FileNotFoundException">There is no such file.</exception>
+    /// <exception cref="FormatException">The file is not a model this reader takes.</exception>
     IReadOnlyList<ModelPart> ReadModel(string path);
 
     /// <summary>

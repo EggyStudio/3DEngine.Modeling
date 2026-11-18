@@ -102,8 +102,8 @@ public sealed partial class EditMesh
     /// What the text is called in an error, its file's path where it came from one.
     /// </param>
     /// <param name="files">
-    /// What the mesh reads and writes, the files its lines name among them, or null for <see
-    /// cref="ModelFolder.WorkingDirectory"/>.
+    /// What the mesh reads and writes, the files its lines name among them, or null for
+    /// <see cref="ModelFolder.WorkingDirectory"/>.
     /// </param>
     /// <exception cref="FormatException">
     /// A line is not an operation or fails, or the header names another version.
@@ -141,8 +141,8 @@ public sealed partial class EditMesh
     }
 
     /// <summary>
-    /// Makes a mesh from a recipe's file, read through the files given, which starts with <see
-    /// cref="Header"/>.
+    /// Makes a mesh from a recipe's file, read through the files given, which starts with
+    /// <see cref="Header"/>.
     /// </summary>
     /// <remarks>
     /// The header tells a recipe from another file of text, so a file without it is refused rather

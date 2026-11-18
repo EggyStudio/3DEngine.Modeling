@@ -159,7 +159,7 @@ Vector2 Uv { get; init; }                                // The texture coordina
 record struct Bounds                                     // A box along the axes, its lowest corner and its highest, in meters
 Bounds(Vector3 Min, Vector3 Max);
 Vector3 Min { get; init; }                               // The corner with the lowest X, Y and Z
-Vector3 Max { get; init; }                               // The corner with the /// highest X, Y and Z
+Vector3 Max { get; init; }                               // The corner with the highest X, Y and Z
 
 record SlotLook                                          // What a material slot of an edit mesh is drawn with, a color, a texture and the maps of a glTF material, each null until the recipe gives it
 SlotLook();                                              // Makes a look with nothing given, the prototype material of the slot's name

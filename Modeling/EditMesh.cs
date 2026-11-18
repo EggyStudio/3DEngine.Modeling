@@ -9,8 +9,8 @@ namespace Modeling;
 /// <remarks>
 /// <para>
 /// Each operation acts on the selection and writes its line to the recipe, so the mesh is made
-/// again from its lines, which are its undo and its file. An engine draws it from what <see
-/// cref="EditMeshBuild.Slots"/> gives and reads its files through <see cref="Files"/>.
+/// again from its lines, which are its undo and its file. An engine draws it from what
+/// <see cref="EditMeshBuild.Slots"/> gives and reads its files through <see cref="Files"/>.
 /// </para>
 /// <para>
 /// A face is a loop of three or more vertex indices, wound counterclockwise seen from the side it
@@ -49,8 +49,8 @@ public sealed partial class EditMesh
 
     /// <summary>Makes an empty mesh, which reads and writes through the files given.</summary>
     /// <param name="files">
-    /// What the mesh's recipe reads and writes, or null for <see
-    /// cref="ModelFolder.WorkingDirectory"/>.
+    /// What the mesh's recipe reads and writes, or null for
+    /// <see cref="ModelFolder.WorkingDirectory"/>.
     /// </param>
     public EditMesh(IModelFiles? files = null) => Files = files ?? ModelFolder.WorkingDirectory;
 

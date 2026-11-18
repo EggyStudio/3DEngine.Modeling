@@ -166,8 +166,8 @@ public sealed partial class EditMesh
     /// about it, Y and Z about X, Z and X about Y and X and Y about Z. Its points are taken either
     /// way round, since the order that makes the ends face out is found from its area.
     /// </param>
-    /// <param name="axis">The axis it is pushed out along.</param> <param name="length">How
-    /// far.</param>
+    /// <param name="axis">The axis it is pushed out along.</param>
+    /// <param name="length">How far.</param>
     /// <param name="at">
     /// Where its lowest corner goes, or its middle where <paramref name="centered"/> is set.
     /// </param>

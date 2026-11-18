@@ -37,10 +37,10 @@ internal static class GltfReader
 
     private readonly record struct Triangle(Corner A, Corner B, Corner C, int Material);
 
-    /// <summary>The file's meshes in the scene's space, a part for each material.</summary> <param
-    /// name="path">The file's path, which a buffer beside it is found from.</param> <param
-    /// name="exists">Whether a file stands at a path.</param> <param name="read">A file's
-    /// bytes.</param>
+    /// <summary>The file's meshes in the scene's space, a part for each material.</summary>
+    /// <param name="path">The file's path, which a buffer beside it is found from.</param>
+    /// <param name="exists">Whether a file stands at a path.</param>
+    /// <param name="read">A file's bytes.</param>
     /// <exception cref="FileNotFoundException">
     /// There is no such file, or a buffer it names is not there.
     /// </exception>

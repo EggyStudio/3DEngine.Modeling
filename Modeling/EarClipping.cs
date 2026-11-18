@@ -26,8 +26,8 @@ internal static class EarClipping
     /// <summary>
     /// The triangles of a face, three corners each, as positions in its loop, wound as it is.
     /// </summary>
-    /// <param name="corners">The face's corners, in order round it.</param> <param
-    /// name="normal">The way it faces, of any length.</param>
+    /// <param name="corners">The face's corners, in order round it.</param>
+    /// <param name="normal">The way it faces, of any length.</param>
     public static int[] Cut(ReadOnlySpan<Vector3> corners, Vector3 normal)
     {
         var count = corners.Length;

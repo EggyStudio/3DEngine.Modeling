@@ -354,8 +354,8 @@ public sealed partial class EditMesh
     }
 
     /// <summary>
-    /// Pushes out the selected faces as a region, each new corner moved by what <paramref
-    /// name="offset"/> answers for the normals of the region's faces round it.
+    /// Pushes out the selected faces as a region, each new corner moved by what
+    /// <paramref name="offset"/> answers for the normals of the region's faces round it.
     /// </summary>
     private void ExtrudeRegion(Func<List<Vector3>, Vector3> offset)
     {

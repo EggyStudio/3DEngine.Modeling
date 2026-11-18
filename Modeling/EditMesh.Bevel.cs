@@ -223,15 +223,15 @@ public sealed partial class EditMesh
     /// <param name="firstRail">
     /// The rail of the face that runs along the edge from its lower end.
     /// </param>
-    /// <param name="secondRail">The rail of the face that runs back along it.</param> <param
-    /// name="first">The first face's normal.</param> <param name="second">The second face's
-    /// normal.</param>
+    /// <param name="secondRail">The rail of the face that runs back along it.</param>
+    /// <param name="first">The first face's normal.</param>
+    /// <param name="second">The second face's normal.</param>
     /// <param name="along">
     /// The edge from its lower end to its higher, the way the first face runs along it.
     /// </param>
-    /// <param name="width">How far each rail is from the edge.</param> <param name="segments">How
-    /// many segments the arc is cut into.</param> <param name="add">Adds a new vertex standing for
-    /// a vertex of the mesh.</param>
+    /// <param name="width">How far each rail is from the edge.</param>
+    /// <param name="segments">How many segments the arc is cut into.</param>
+    /// <param name="add">Adds a new vertex standing for a vertex of the mesh.</param>
     private int[] Profile(int at, int firstRail, int secondRail, Vector3 first, Vector3 second, Vector3 along, float width, int segments, Func<Vector3, int, int> add)
     {
         var points = new int[segments + 1];

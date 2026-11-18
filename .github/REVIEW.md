@@ -419,3 +419,11 @@ The host gains a scene that draws a shown model again as its version moves and a
 every command by its name and usage, which the binding block shows and BindingTests runs. With it
 item 3 holds its four parts and the import's. The tests pass, 170 where there were 168 (dotnet test
 Modeling.Tests).
+
+The documentation's elements one a line, in the commit carrying this line. The rewrap of part 1 had
+joined a summary, a parameter or an exception onto the line of the element before it in 15 blocks
+of 11 files, and broken a `<see>` across two lines in a few. The compiler read most of them alike,
+but Bounds' parameter for `Max` held a `///` within it, which the cheatsheet showed as "The corner
+with the /// highest X, Y and Z". Each element stands whole on a line where it fits in 100 columns,
+else between its tags on lines of their own, and no line breaks inside a tag, and CHEATSHEET.md is
+written again with that line mended. No other word changed. The tests pass, 170.

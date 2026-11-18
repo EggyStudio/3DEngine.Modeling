@@ -130,8 +130,8 @@ public sealed partial class EditMesh
         Look(slot, look => look with { Emissive = color }, $"slot emissive {slot} {V(color)}");
     }
 
-    /// <summary>Sets how metal a slot's faces are, from zero to one.</summary> <exception
-    /// cref="ArgumentOutOfRangeException">The value is not from zero to one.</exception>
+    /// <summary>Sets how metal a slot's faces are, from zero to one.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The value is not from zero to one.</exception>
     public void SlotMetallic(string slot, float metallic)
     {
         Fraction(metallic, "Metalness runs from zero to one.");
