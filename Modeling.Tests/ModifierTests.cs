@@ -203,8 +203,7 @@ public sealed class ModifierTests
 
     // A build whose work grows with the faces once over is in time, and one whose work for each
     // face grows with the count of faces, as a corner's normal found by searching every face would,
-    // is past it. The stack's first build in a process takes 135 to 151 ms, timed round
-    // EditMeshBuild.Slots in a Debug build three times, so the bound stands at ten times that.
+    // is past it, the bound standing at ten times the stack's first build in a process.
     private const long Budget = 1500;
 
     [Fact]

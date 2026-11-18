@@ -271,3 +271,9 @@ These are left, each with its reason:
 The budget's comment in ModifierTests says what the bound catches and the time it is measured
 against. The strict build is clean and the tests pass, 141 where there were 133 (dotnet test
 Modeling.Tests).
+
+The commit carrying this line holds part 2's reading, 2026-11-18-item-3-mirror.webp, a closed half
+mirrored before the mend and after it. The budget's comment in ModifierTests says what the bound
+guards, and the figure it stands on is the stack's first build in a process, 135 to 151 ms over
+three runs, timed round EditMeshBuild.Slots in a Debug build, the bound of 1,500 ms ten times that.
+`.gitignore` holds Python's `__pycache__/`, which a run of build/textures.py leaves.

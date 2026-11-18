@@ -3,6 +3,9 @@
 bin/
 obj/
 
+# Python's compiled modules, which a run of build/textures.py leaves beside it.
+__pycache__/
+
 # Tests and build logs
 TestResults/
 *.trx
