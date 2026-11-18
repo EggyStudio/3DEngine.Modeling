@@ -1,72 +1,52 @@
-using System.Numerics;
-
-namespace Modeling.Tests;
-
 // An engine of the smallest kind, which binds the module as the README's section Binding it in your
-// engine says, so the tests run the section's steps. Its files are kept in memory, its vertex has a
-// layout of its own and its material holds what a slot's look names. The part between the two
-// marker lines is the code the section shows, word for word.
+// engine says, so the tests run the section's steps. The part between the two marker lines is the
+// code the section shows, word for word.
 
 // The README's block from here
+using System.Numerics;
+using Modeling;
 
-/// <summary>
-/// The engine's files, kept in memory by their paths, which every mesh it makes reads and writes.
-/// </summary>
+// The engine's files, kept here in memory by their paths, which every mesh it makes reads and
+// writes. An engine on a disk finds them as it finds a program's other files, and its own model
+// reader gives a model file's meshes.
 public sealed class HostFiles : IModelFiles
 {
     private readonly Dictionary<string, string> _texts = [];
     private readonly Dictionary<string, IReadOnlyList<ModelPart>> _models = [];
     private readonly Dictionary<string, int> _images = [];
 
-    /// <summary>Puts a text file, a recipe, at a path.</summary>
     public void PutText(string path, string text) => _texts[path] = text;
 
-    /// <summary>
-    /// Puts a model file's meshes at a path, as the engine's model reader gives them.
-    /// </summary>
     public void PutModel(string path, IReadOnlyList<ModelPart> parts) => _models[path] = parts;
 
-    /// <summary>Puts an image of a width at a path.</summary>
     public void PutImage(string path, int width) => _images[path] = width;
 
-    /// <inheritdoc/>
     public string ReadText(string path) =>
         _texts.TryGetValue(path, out var text) ? text : throw new FileNotFoundException($"There is no file at {path}.", path);
 
-    /// <inheritdoc/>
     public string WriteText(string path, string text)
     {
         _texts[path] = text;
         return path;
     }
 
-    /// <inheritdoc/>
     public IReadOnlyList<ModelPart> ReadModel(string path) =>
         _models.TryGetValue(path, out var parts) ? parts : throw new FileNotFoundException($"There is no model at {path}.", path);
 
-    /// <inheritdoc/>
     public int? ImageWidth(string path) => _images.TryGetValue(path, out var width) ? width : null;
 }
 
-/// <summary>The engine's vertex, laid out as its renderer reads it.</summary>
+// The engine's vertex, laid out as its renderer reads it, and its material and mesh of a slot.
 public readonly record struct HostVertex(Vector3 Position, Vector3 Normal, Vector2 TexCoord);
 
-/// <summary>
-/// The engine's material, made from a slot's look, white where the look gives no color.
-/// </summary>
 public sealed record HostMaterial(string Name, Vector4 Color, string? Albedo, string? Normal, Vector3 Emissive);
 
-/// <summary>
-/// The engine's mesh of one material slot, its vertices, its triangles and its material.
-/// </summary>
 public sealed record HostMesh(HostVertex[] Vertices, uint[] Indices, HostMaterial Material);
 
-/// <summary>What the engine does with an edit mesh, a mesh of its own for each slot.</summary>
+// An edit mesh built into the engine's meshes, one a slot in the order of its slots, each vertex
+// copied into the engine's and each slot's look into its material, white where it gives no color.
 public static class HostBinding
 {
-    /// <summary>
-    /// Builds an edit mesh into the engine's meshes, one a slot, in the order of its slots.
-    /// </summary>
     public static HostMesh[] Build(EditMesh mesh)
     {
         var built = EditMeshBuild.Slots(mesh);
@@ -81,5 +61,4 @@ public static class HostBinding
         return meshes;
     }
 }
-
 // The end marker.

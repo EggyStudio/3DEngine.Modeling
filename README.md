@@ -34,6 +34,107 @@ A clone of the engine fetches the module with `git clone --recurse-submodules`, 
 before the engine's commit that moves its pointer, so the engine's history never names a commit
 this repository does not have.
 
+## Binding it in your engine
+
+The module shapes a mesh and gives out its data, and an engine draws it, collides with it and loads
+its materials. Its assembly is `3DEngine.Modeling`, and its types stand in the namespace `Modeling`.
+It opens no window and no graphics device, reads and writes no file but through an interface, and
+declares one interface for what it needs of an engine.
+
+| Interface | What the engine answers |
+|---|---|
+| `IModelFiles` | A text file read and written whole by its path, a recipe's, a model file's meshes as triangles placed by the file's nodes, each a `ModelPart`, and an image's width in pixels, which every file a mesh's recipe names is read through |
+
+A mesh is made with the engine's files, `new EditMesh(files)`, or read with them by
+`EditMesh.Load` or `EditMesh.FromRecipe`, and every mesh a join, a boolean or a modifier makes inside
+it shares them. `ModelFolder` is an `IModelFiles` over a folder, reading the width of a PNG or a KTX2
+from its header and no model file. The binding reads what `EditMeshBuild.Slots` gives, a mesh a
+material slot of `MeshVertex` corners and uint triangles, and each slot's `SlotLook` by
+`EditMesh.LookAt`, whose maps `MaterialMap` names, and makes meshes and materials of its own. An
+engine whose meshes are entities keeps an edit mesh on its entity, as BevyCSharp's modeling does, and
+one with a flat API of handles keeps them by an id in a store, as 3DEngine's does.
+
+What the module gives out stands on these conventions.
+
+| Quantity | Convention |
+|---|---|
+| Length | Meters, the grid's step from a sixteenth of a meter to 64 |
+| Axes | Y up and right-handed, as System.Numerics' cross product is, `select +y` picking the faces that face up |
+| Triangles | Counterclockwise seen from the side a face faces, each face's corners its own in the build |
+| Texture coordinates | A face's corners' places in meters seen along the axis its normal is nearest until a `uv` line gives it its own, the second running down a wall, so a picture's first row is its top |
+| Angles | Degrees, a rotation counterclockwise looking back along its axis |
+| Color | A slot's color as sRGB numbers from 0 to 1 with its alpha, as a color picker shows them, and its emissive color linear, past 1 for a bright light |
+| Paths | One word with forward slashes, as a recipe line holds it, found by the engine's `IModelFiles` |
+| A plane or a center with no `at` | Through the origin, for a knife, a mirror, a spin and a modifier's mirror, so an engine whose own lines meant the selection's middle writes the point with `at` |
+
+An engine with Z up or left-handed axes turns the positions and normals it is given, and one that
+takes clockwise triangles as their front takes each triangle's corners in the other order. A recipe's
+file starts with `model 1` and ends in `.model`.
+
+The smallest binding keeps its files in memory, builds a mesh into a mesh of its own for each slot,
+and copies each slot's look into its material.
+
+```csharp
+using System.Numerics;
+using Modeling;
+
+// The engine's files, kept here in memory by their paths, which every mesh it makes reads and
+// writes. An engine on a disk finds them as it finds a program's other files, and its own model
+// reader gives a model file's meshes.
+public sealed class HostFiles : IModelFiles
+{
+    private readonly Dictionary<string, string> _texts = [];
+    private readonly Dictionary<string, IReadOnlyList<ModelPart>> _models = [];
+    private readonly Dictionary<string, int> _images = [];
+
+    public void PutText(string path, string text) => _texts[path] = text;
+
+    public void PutModel(string path, IReadOnlyList<ModelPart> parts) => _models[path] = parts;
+
+    public void PutImage(string path, int width) => _images[path] = width;
+
+    public string ReadText(string path) =>
+        _texts.TryGetValue(path, out var text) ? text : throw new FileNotFoundException($"There is no file at {path}.", path);
+
+    public string WriteText(string path, string text)
+    {
+        _texts[path] = text;
+        return path;
+    }
+
+    public IReadOnlyList<ModelPart> ReadModel(string path) =>
+        _models.TryGetValue(path, out var parts) ? parts : throw new FileNotFoundException($"There is no model at {path}.", path);
+
+    public int? ImageWidth(string path) => _images.TryGetValue(path, out var width) ? width : null;
+}
+
+// The engine's vertex, laid out as its renderer reads it, and its material and mesh of a slot.
+public readonly record struct HostVertex(Vector3 Position, Vector3 Normal, Vector2 TexCoord);
+
+public sealed record HostMaterial(string Name, Vector4 Color, string? Albedo, string? Normal, Vector3 Emissive);
+
+public sealed record HostMesh(HostVertex[] Vertices, uint[] Indices, HostMaterial Material);
+
+// An edit mesh built into the engine's meshes, one a slot in the order of its slots, each vertex
+// copied into the engine's and each slot's look into its material, white where it gives no color.
+public static class HostBinding
+{
+    public static HostMesh[] Build(EditMesh mesh)
+    {
+        var built = EditMeshBuild.Slots(mesh);
+        var meshes = new HostMesh[built.Length];
+        for (var slot = 0; slot < built.Length; slot++)
+        {
+            var (vertices, indices) = built[slot];
+            var look = mesh.LookAt(slot);
+            var material = new HostMaterial(mesh.Slots[slot], look.Color ?? Vector4.One, look.Texture, look.NormalMap, look.Emissive ?? Vector3.Zero);
+            meshes[slot] = new HostMesh([.. vertices.Select(v => new HostVertex(v.Position, v.Normal, v.Uv))], indices, material);
+        }
+        return meshes;
+    }
+}
+```
+
 ## Building and testing
 
 With the .NET 10 SDK:

@@ -277,3 +277,13 @@ mirrored before the mend and after it. The budget's comment in ModifierTests say
 guards, and the figure it stands on is the stack's first build in a process, 135 to 151 ms over
 three runs, timed round EditMeshBuild.Slots in a Debug build, the bound of 1,500 ms ten times that.
 `.gitignore` holds Python's `__pycache__/`, which a run of build/textures.py leaves.
+
+Decision 10's first two asks, in `2d259bf` and the commit carrying this line. The README's section
+Binding it in your engine names `IModelFiles`, the one interface the module declares, how a mesh is
+made with an engine's files and what the binding reads of the build and the looks, and the
+conventions, meters, Y up and right-handed, counterclockwise triangles, the texture coordinates'
+second running down a wall, degrees, a slot's color in sRGB and its emissive linear, paths of one
+word, and a knife's, a mirror's or a spin's plane or center through the origin where a line names no
+`at`, so BevyCSharp's binding writes the point. Its block is Modeling.Tests/BindingHost.cs between
+Tools' two marker lines, an engine whose files are in memory, and BindingTests runs a recipe that
+joins, imports, textures, saves and loads through it into meshes of its own a slot.
