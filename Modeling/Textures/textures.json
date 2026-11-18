@@ -20,14 +20,14 @@
         "surface.ktx2": 349952
       },
       "error": {
-        "albedo.ktx2": 45.3,
+        "albedo.ktx2": 46.4,
         "normal.ktx2": 52.9,
         "surface.ktx2": 54.2
       },
       "color": [
-        0.573,
-        0.4408,
-        0.3787
+        0.5754,
+        0.4445,
+        0.3829
       ],
       "surface": [
         1.0,
@@ -64,14 +64,14 @@
         "surface.ktx2": 175200
       },
       "error": {
-        "albedo.ktx2": 46.2,
+        "albedo.ktx2": 49.4,
         "normal.ktx2": 99.0,
         "surface.ktx2": 54.2
       },
       "color": [
-        0.9229,
-        0.8693,
-        0.831
+        0.9261,
+        0.8722,
+        0.834
       ],
       "surface": [
         1.0,

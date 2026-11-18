@@ -438,3 +438,14 @@ and the model's. `select`'s summary says what it selects by, and a `<side>` is n
 as the guard of the rule that a join's depth is counted on each thread for itself, written to show
 a shared count and passing before any mend, since the count is `[ThreadStatic]`. The tests pass,
 174 where there were 170 (dotnet test Modeling.Tests).
+
+The two albedos rebuilt in the commit carrying this line by Materials' encoder at `ac9652d`, which
+writes BC7's mode 1 where a block's colors leave one line, pinned there, with `python3 -I -B
+../Materials/scripts/textures.py Modeling/Textures/textures.json`. The carpet's albedo differs in
+179,620 bytes and reads 46.4 dB where it read 45.3, the wallpaper's in 76,910 and reads 49.4 where
+it read 46.2 (cmp -l), and the manifest's figures for the two follow, each albedo's error and its
+mean color, the carpet's from 0.573, 0.4408 and 0.3787 to 0.5754, 0.4445 and 0.3829 and the
+wallpaper's from 0.9229, 0.8693 and 0.831 to 0.9261, 0.8722 and 0.834. No other file of the sets
+changed. TexturesTests decoded BC7's mode 6 alone and failed on the first mode 1 block, so it
+decodes each set's top levels by Materials' `Ktx2` in place of its own BC7 and BC5 decoders, its
+check of the files' layout kept. The tests pass, 174.

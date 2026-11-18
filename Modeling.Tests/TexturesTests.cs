@@ -7,7 +7,8 @@ namespace Modeling.Tests;
 
 /// <summary>
 /// The texture collection under Modeling/Textures, each set's three KTX2 files read and their top
-/// levels decoded as a GPU samples them, against what build/textures.py measured as it built them.
+/// levels decoded by the Materials module as a GPU samples them, against what the build measured as
+/// it built them.
 /// </summary>
 public class TexturesTests
 {
@@ -34,8 +35,8 @@ public class TexturesTests
         int width = size[0].GetInt32(), height = size[1].GetInt32();
 
         // The color, opaque everywhere, its mean the one the build measured before encoding.
-        var albedo = Read(name, "albedo.ktx2", Bc7Srgb, width, height);
-        var color = DecodeBc7(albedo, width, height);
+        Read(name, "albedo.ktx2", Bc7Srgb, width, height);
+        var color = Decoded(name, "albedo.ktx2");
         for (int i = 3; i < color.Length; i += 4)
             Assert.Equal(255, color[i]);
         AssertMeans(entry.GetProperty("color"), color, 4, $"{name}'s color");
@@ -43,12 +44,13 @@ public class TexturesTests
         // The normal's X and Y, each texel's a unit normal's with Z left over, flat where the
         // recipe names no normal map and varying where it does.
         int smallWidth = Math.Max(width / 2, 4), smallHeight = Math.Max(height / 2, 4);
-        var normal = DecodeBc5(Read(name, "normal.ktx2", Bc5, smallWidth, smallHeight), smallWidth, smallHeight);
+        Read(name, "normal.ktx2", Bc5, smallWidth, smallHeight);
+        var normal = Decoded(name, "normal.ktx2");
         var slopes = new HashSet<(byte, byte)>();
-        for (int i = 0; i < normal.Length; i += 2)
+        for (int i = 0; i < normal.Length; i += 4)
         {
             double x = normal[i] / 127.5 - 1, y = normal[i + 1] / 127.5 - 1;
-            Assert.True(x * x + y * y <= 1.0, $"{name}'s normal at texel {i / 2} has X {x:F3} and Y {y:F3}, longer than a unit normal");
+            Assert.True(x * x + y * y <= 1.0, $"{name}'s normal at texel {i / 4} has X {x:F3} and Y {y:F3}, longer than a unit normal");
             slopes.Add((normal[i], normal[i + 1]));
         }
         if (entry.TryGetProperty("normal", out _))
@@ -57,7 +59,8 @@ public class TexturesTests
             Assert.Equal(((byte)128, (byte)128), Assert.Single(slopes));
 
         // Occlusion, roughness, metallic and translucency, their means the build's.
-        var surface = DecodeBc7(Read(name, "surface.ktx2", Bc7, smallWidth, smallHeight), smallWidth, smallHeight);
+        Read(name, "surface.ktx2", Bc7, smallWidth, smallHeight);
+        var surface = Decoded(name, "surface.ktx2");
         AssertMeans(entry.GetProperty("surface"), surface, 4, $"{name}'s surface");
     }
 
@@ -116,74 +119,11 @@ public class TexturesTests
         return top;
     }
 
-    /// <summary>
-    /// BC7 blocks decoded to RGBA, each in mode 6, the only mode the build writes.
-    /// </summary>
-    private static byte[] DecodeBc7(byte[] blocks, int width, int height)
-    {
-        ReadOnlySpan<int> weights = [0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64];
-        var texels = new byte[width * height * 4];
-        int across = (width + 3) / 4;
-        Span<int> low = stackalloc int[4], high = stackalloc int[4];
-        for (int block = 0; block < blocks.Length / 16; block++)
-        {
-            var bits = BinaryPrimitives.ReadUInt128LittleEndian(blocks.AsSpan(16 * block));
-            int Take(int at, int count) => (int)(bits >> at) & ((1 << count) - 1);
-            Assert.True(Take(0, 7) == 0x40, $"block {block} is not in mode 6");
+    // A set's file's top level decoded by the Materials module, four bytes a texel, a channel the
+    // format does not hold reading zero and an alpha it does not hold 255.
+    private static byte[] Decoded(string name, string file) =>
+        Materials.Ktx2.Read(File.ReadAllBytes(Path.Combine(Collection, name, file))).Decode();
 
-            for (int c = 0; c < 4; c++)
-            {
-                low[c] = Take(7 + 14 * c, 7) << 1 | Take(63, 1);
-                high[c] = Take(14 + 14 * c, 7) << 1 | Take(64, 1);
-            }
-
-            for (int i = 0; i < 16; i++)
-            {
-                var weight = weights[i == 0 ? Take(65, 3) : Take(68 + 4 * (i - 1), 4)];
-                int x = block % across * 4 + i % 4, y = block / across * 4 + i / 4;
-                if (x >= width || y >= height)
-                    continue;
-                for (int c = 0; c < 4; c++)
-                    texels[(y * width + x) * 4 + c] = (byte)(((64 - weight) * low[c] + weight * high[c] + 32) >> 6);
-            }
-        }
-        return texels;
-    }
-
-    /// <summary>BC5 blocks decoded to their two channels, each a BC4 block.</summary>
-    private static byte[] DecodeBc5(byte[] blocks, int width, int height)
-    {
-        var texels = new byte[width * height * 2];
-        int across = (width + 3) / 4;
-        Span<int> palette = stackalloc int[8];
-        for (int block = 0; block < blocks.Length / 16; block++)
-        {
-            for (int channel = 0; channel < 2; channel++)
-            {
-                var bits = BinaryPrimitives.ReadUInt64LittleEndian(blocks.AsSpan(16 * block + 8 * channel));
-                int first = (int)(bits & 0xFF), second = (int)(bits >> 8 & 0xFF);
-                palette[0] = first;
-                palette[1] = second;
-                for (int i = 2; i < 8; i++)
-                {
-                    palette[i] = first > second
-                        ? ((8 - i) * first + (i - 1) * second + 3) / 7
-                        : i < 6 ? ((6 - i) * first + (i - 1) * second + 2) / 5 : i == 6 ? 0 : 255;
-                }
-
-                for (int i = 0; i < 16; i++)
-                {
-                    int x = block % across * 4 + i % 4, y = block / across * 4 + i / 4;
-                    if (x < width && y < height)
-                        texels[(y * width + x) * 2 + channel] = (byte)palette[(int)(bits >> (16 + 3 * i) & 7)];
-                }
-            }
-        }
-        return texels;
-    }
-
-    // Within two levels of 255, the encoding's error on a mean, as a constant's channels share the
-    // lowest bit of their endpoints in mode 6, one of them a level off.
     private static void AssertMeans(JsonElement expected, byte[] texels, int channels, string what)
     {
         var count = texels.Length / channels;
