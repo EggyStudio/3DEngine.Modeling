@@ -380,3 +380,11 @@ entities and one of a flat API of handles is taken out, as a description of two 
 its line on ModelFolder says it reads glTF. The texture sets' formats are named as the Vegetation
 module's collection's. No sheet or caption named an engine. DEVLOG.md and CHEATSHEET.md were written
 again and are the same, 3 days, 4 pictures and 3 items done, and 10 types. The tests pass, 157.
+
+The cheatsheet written as one word, in the commit carrying this line, Tools pinned at `75d77f2`.
+ModuleTests holds Tools' seven facts in the form its README gives, the fault given to
+`Assert.True` whole, the two it adds among them, that no tracked text names an engine and that the
+README opens with its link row, and both pass. `git grep -n -i "cheat sheet"` finds none, the page's
+title, kept by hand, taking the one word, and CHEATSHEET.md is written again. The import's commit
+carries `[Cheatsheet]` in the link row from the start, remade with the sweep's after it. The tests
+pass, 159 where there were 157 (dotnet test Modeling.Tests).

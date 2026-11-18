@@ -1,4 +1,4 @@
-# 3DEngine.Modeling cheat sheet
+# 3DEngine.Modeling cheatsheet
 
 The module's public types, `EditMesh`, shaped by its operations or by a recipe's lines, `EditMeshBuild`,
 which builds it into the triangles an engine draws, and `IModelFiles`, the files a mesh reads and
