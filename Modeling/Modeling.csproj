@@ -3,6 +3,8 @@
     <!-- The library both engines reference from their own projects, which knows no engine (N 2.1). -->
     <PropertyGroup>
         <RootNamespace>Modeling</RootNamespace>
+        <AssemblyName>3DEngine.Modeling</AssemblyName>
+        <PackageId>3DEngine.Modeling</PackageId>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
