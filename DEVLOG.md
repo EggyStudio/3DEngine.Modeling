@@ -6,6 +6,13 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-18
+
+![](.github/assets/readings/2026-11-18-item-3-mirror.webp)
+A closed half box of 1 by 2 by 2 m mirrored across x = 0, before the mend with 11 faces and its face
+at x = 0 left inside on four edges three faces share, and after it with 10 faces, closed and holding
+8 cubic meters, the faces drawn see-through.
+
 ## 2026-11-01
 
 ![](.github/assets/readings/2026-11-01-item-5-carpet.webp)

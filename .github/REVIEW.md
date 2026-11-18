@@ -298,3 +298,8 @@ README and the README's block standing in the host word for word, so they found 
 held no copy of those four to remove; SourceTests stays, since Tools holds the comment's width as a
 script and not as one of the facts. The library's deps.json names nothing of Tools'. The strict
 build is clean and the tests pass, 147 where there were 143 (dotnet test Modeling.Tests).
+
+The devlog in the commit carrying this line, written by `python3 -I modules/Tools/scripts/devlog.py
+. Modeling` from the Tools submodule at `f92df1c`, holds 3 days, 2026-10-31, 2026-11-01 and
+2026-11-18, with 4 pictures and 3 items done, the mirror's reading of 2026-11-18 the entry it gains.
+The README's first line links it, and AGENTS.md's row names the command and when it runs.
