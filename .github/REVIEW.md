@@ -287,3 +287,14 @@ word, and a knife's, a mirror's or a spin's plane or center through the origin w
 `at`, so BevyCSharp's binding writes the point. Its block is Modeling.Tests/BindingHost.cs between
 Tools' two marker lines, an engine whose files are in memory, and BindingTests runs a recipe that
 joins, imports, textures, saves and loads through it into meshes of its own a slot.
+
+Tools' shared checks in the commit carrying this line, as Tools' README section A module's checks
+gives them. The submodule stands at `modules/Tools` pinned at `f92df1c`, the tests' project
+references it with the NeedsTools target, ModuleTests holds the four facts with Library
+`3DEngine.Modeling`, Root and Host `Modeling.Tests/BindingHost.cs`, and the workflow's checkout takes
+`submodules: true`. On the first run all four passed, the library taking no engine, window or
+graphics API, no public name or its documentation naming an engine, every public type named in the
+README and the README's block standing in the host word for word, so they found no fault. The module
+held no copy of those four to remove; SourceTests stays, since Tools holds the comment's width as a
+script and not as one of the facts. The library's deps.json names nothing of Tools'. The strict
+build is clean and the tests pass, 147 where there were 143 (dotnet test Modeling.Tests).

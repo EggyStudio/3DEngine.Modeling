@@ -137,7 +137,9 @@ public static class HostBinding
 
 ## Building and testing
 
-With the .NET 10 SDK:
+The tests take the checks every module keeps from the Tools module, a git submodule under
+`modules/Tools`, so a clone fetches it with `git clone --recurse-submodules`, or with
+`git submodule update --init` in a clone made without it. With the .NET 10 SDK:
 
 ```bash
 dotnet build Modeling.slnx
