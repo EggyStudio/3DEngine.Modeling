@@ -303,3 +303,9 @@ The devlog in the commit carrying this line, written by `python3 -I modules/Tool
 . Modeling` from the Tools submodule at `f92df1c`, holds 3 days, 2026-10-31, 2026-11-01 and
 2026-11-18, with 4 pictures and 3 items done, the mirror's reading of 2026-11-18 the entry it gains.
 The README's first line links it, and AGENTS.md's row names the command and when it runs.
+
+The two albedos rebuilt in the commit carrying this line by Materials' encoder at `4f5f060`, which
+holds the mend of `7e69a59`, with `python3 -I -B ../Materials/scripts/textures.py
+Modeling/Textures/textures.json`. The carpet's albedo differs in 622 bytes and the wallpaper's in
+3,306 (cmp -l), at 45.3 and 46.2 dB, and no other file changed, the normals, the surfaces and the
+manifest the same byte for byte.
