@@ -213,15 +213,29 @@ public sealed partial class EditMesh
     {
         var epsilon = (double)BooleanEpsilon;
         var pieces = operation(Polygons(this, second: false), Polygons(other, second: true), epsilon);
-        var (points, faces) = FaceMerge.Faces(pieces, epsilon * 10);
+        var join = epsilon * 10;
+        var (points, faces) = FaceMerge.Faces(pieces, join);
 
         _positions.Clear();
         _positions.AddRange(points.Select(point => new Vector3((float)point.X, (float)point.Y, (float)point.Z)));
         _faces.Clear();
         _selectedFaces.Clear();
         _selectedVertices.Clear();
-        foreach (var (corners, source) in faces)
+
+        // Two faces over the same corners facing opposite ways are a flap of no volume the
+        // partition
+        // left, which runs each of its edges twice each way, so both are left out. A boolean is
+        // made of
+        // solids, so a face and its flipped twin a mesh held before go the same way.
+        var flaps = faces.Select((face, index) => (Key: string.Join(',', face.Corners.Order()), index))
+            .GroupBy(face => face.Key).Where(group => group.Count() == 2)
+            .SelectMany(group => group.Select(face => face.index)).ToHashSet();
+        foreach (var (corners, source) in faces.Where((_, index) => !flaps.Contains(index)))
         {
+            // A piece thinner than the join's distance, its area over its longest side, is a sliver
+            // the partition left along a line, which would run that line both ways and split again
+            // at every later cut, so it is left out.
+            if (Thickness(corners) < join) continue;
             var uvs = source.Uvs is { } map ? corners.Select(corner => map.At(_positions[corner])).ToArray() : null;
             var face = AddFace(corners, SlotIndex(source.Slot, source.Look), source.Smooth, uvs);
             if (!source.Second) continue;
@@ -233,6 +247,15 @@ public sealed partial class EditMesh
 
     // A mesh's faces as convex polygons for the partition, each face cut into triangles, with what
     // it came from.
+    // A face's area over its longest side, how thin it is across that side.
+    private double Thickness(int[] corners)
+    {
+        var longest = 0.0;
+        for (int i = 0; i < corners.Length; i++)
+            longest = Math.Max(longest, (_positions[corners[(i + 1) % corners.Length]] - _positions[corners[i]]).Length());
+        return longest == 0 ? 0 : Newell(corners).Length() / 2 / longest;
+    }
+
     private static IEnumerable<Csg.Polygon> Polygons(EditMesh mesh, bool second)
     {
         foreach (var face in mesh._faces)

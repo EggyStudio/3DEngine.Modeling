@@ -19,8 +19,21 @@ followed its radius with its checker's cells squeezing round it, its width round
 along falling from 1.011 to 0.211 a segment at a time, and after, the same stem with the ratio held
 at 1.047 the whole way and its cells growing finer toward the tip.
 
+![](.github/assets/readings/2026-11-18-windows-after.webp)
+The same wall after the mend, closed with 32 and 88 faces at 5 and 15 windows, and at 25 holding 127
+faces with 8 on its front, 7 open edges left where a corner far along the wall drifts by 1.5e-4 m.
+
+![](.github/assets/readings/2026-11-18-windows-before.webp)
+A wall of 200 m with 5, 15 and 25 windows cut along its front before the mend, each front face
+outlined, closed at 5, open at 15 with 8 open edges, and at 25 holding 15,165 faces, 7,523 of them
+slivers on its front along the windows' heads.
+
 Commits that day
 
+- `2f9af55` A glTF model's materials are read by the Materials module's import in place of the
+  reader's own, refusing what glTF does not allow and keeping a picture whose path holds a space.
+- `f61e929` A tapered tube's wrap can follow its radius, so its picture's texels keep the shape they
+  have at its base the whole way, and the README says how a branch keeps the scale across its joint.
 - `1c83492` The Tools submodule is moved to its head and the devlog is written again with each day's
   commits.
 - `def69f0` A tube carries its picture so many times round it and so many meters along it as its

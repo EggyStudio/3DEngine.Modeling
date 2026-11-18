@@ -266,4 +266,24 @@ public sealed class BooleanTests : IDisposable
         var solidRoom = () => New().Room(Vector3.One, 0.5f);
         Assert.ThrowsAny<ArgumentOutOfRangeException>(solidRoom);
     }
+
+    [Fact]
+    public void A_Wall_With_Many_Windows_Keeps_A_Handful_Of_Faces_For_Each()
+    {
+        // Twenty-five windows along a wall's front, each cut through the faces the front's
+        // selection
+        // holds, the cuts far apart so no window meets another.
+        var lines = new List<string> { "box 60 3 0.2" };
+        for (int i = 0; i < 25; i++)
+        {
+            lines.Add("select +z");
+            lines.Add($"cut window 0.5 0.5 {(1 + i * 0.9f).ToString(System.Globalization.CultureInfo.InvariantCulture)} 1");
+        }
+        var wall = EditMesh.FromRecipe(string.Join("\n", lines));
+
+        Assert.True(wall.IsClosed);
+        Assert.Equal(60 * 3 * 0.2f - 25 * 0.5f * 0.5f * 0.2f, wall.Volume, 1e-3f);
+        // the wall's six faces and a window's four sides, with the front and back pieces round it
+        Assert.InRange(wall.FaceCount, 6, 10 + 8 * 25);
+    }
 }

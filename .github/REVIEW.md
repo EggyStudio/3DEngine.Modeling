@@ -497,3 +497,33 @@ and a test says each, which failed before on the first: a factor out of glTF's r
 where the reader clamped it, an alpha mode glTF does not name is refused where it was read as
 opaque, and a picture whose path holds a space keeps it where it was left out. The tests pass, 177
 where there were 176 (dotnet test Modeling.Tests).
+
+The cuts' fragmentation, in the commit carrying this line, measured before the mend. Twenty-five
+windows cut along a wall's front left a wall of 200 m with 15,165 faces and open, of 60 m open with
+7 edges, and of 30 m closed with 113. The partition left two kinds of piece that every later cut
+split again: a flap, two faces over the same corners facing opposite ways along a window's head,
+and slivers thinner than the join's distance. A boolean leaves both out, a face and its flipped twin
+a mesh held before among the flaps, since a boolean is made of solids. Its test, 25 windows in a
+wall of 60 m closed with at most 10 and 8 a window faces and the wall's volume less the openings,
+failed before on the 7 open edges. After it the wall of 200 m holds 127 faces, 8 on its front, and
+the readings 2026-11-18-windows-before.webp and -after.webp show its front after 5, 15 and 25 cuts.
+Every mesh the tests pin keeps its counts, and of part 1's 4,004 recipes 57 differ from 3DEngine
+where 46 did, the 11 more each open under 3DEngine as well, so no closed mesh changes. The tests
+pass, 178 where there were 177 (dotnet test Modeling.Tests).
+
+Open: the wall of 200 m keeps 7 open edges. A corner 22 m along it, worked out through the plane of
+a front face 200 m long that reaches round the windows through slits, drifts by 1.5e-4 m, past the
+join's 1e-4, and meets its neighbor's corner taken from the window itself no longer. A join's
+distance grown with the meshes' extent made it worse, 38 open edges, and a snap of new points to old
+vertices broke a door's cut, so both are left out. It wants the partition kept off a long face's
+far part, or a face's slits cut otherwise than by ear clipping.
+
+Handoff. Item 3 stands whole, with the import's looks, the recipe's lines, the tube's wrap and its
+taper after it. In order next: the drift above, then tangents from the build
+(`EditMeshBuild.Tangents`, each corner's tangent and handedness from the texture coordinates, a
+failing test first on a box's faces and a mirrored copy), then undo's snapshots only if an undo on a
+long recipe is still slow once the cuts no longer fragment. A fresh session reads AGENTS.md, then
+this file's head, Decisions 9 to 11 and the Replies from the import's on, then NORM.md's N 4.9 to
+N 4.11, N 7.7 and N 7.9. It builds under the GPU lock with `flock -s /run/user/1000/gpu.lock`, node
+reuse and the compiler server off, and commits after `python3 -I modules/Tools/scripts/commitcheck.py
+. --staged --message=<file>`. Tools is pinned by its `pin.py`, the devlog written with `--commits`.
