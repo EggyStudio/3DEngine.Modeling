@@ -11,7 +11,7 @@ implements the interface it declares where it binds the module.
 | Type | Gives |
 |---|---|
 | `EditMesh` | A polygon mesh shaped by primitives and by operations on its selection, its faces of any count kept whole, its material slots, its modifiers, and its recipe, the line each operation writes, which is its undo and its file and makes the mesh again when it is run |
-| `EditMeshBuild` | The mesh with its modifiers applied, built into the vertices and triangles of each slot, each face cut by ear clipping with its own normals and texture coordinates, smoothed within its angle |
+| `EditMeshBuild` | The mesh with its modifiers applied, built into the vertices and triangles of each slot, with each corner's tangent and hand for an engine that draws with a tangent buffer, each face cut by ear clipping with its own normals and texture coordinates, smoothed within its angle |
 | `MeshVertex` and `Bounds` | A built vertex, its place, normal and texture coordinates, which an engine copies into its own, and a box along the axes |
 | `SlotLook` and `MaterialMap` | What a slot is drawn with, a color, a texture and the maps of a glTF material by their files, metalness, roughness and an emissive color, which an engine loads into a material of its own |
 | `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles with their normals, texture coordinates and material's look where the file holds them, its textures' widths and the glTF it is exported as, which an engine implements with its own lookup and model reader, and the files of a folder, which read glTF, for the tests and a program with no engine |

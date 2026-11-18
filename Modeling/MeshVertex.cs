@@ -7,9 +7,9 @@ namespace Modeling;
 /// </summary>
 /// <remarks>
 /// <see cref="EditMeshBuild.Slots"/> gives these, and an engine copies each into a vertex of its
-/// own. No tangent is given, since a normal map's frame follows from the texture coordinates, and
-/// an engine works it out where it draws, from the coordinates as it draws or as tangents it
-/// generates when it takes the mesh.
+/// own. No tangent is given, since a normal map's frame follows from the texture coordinates; an
+/// engine works it out where it draws, or takes each corner's from
+/// <see cref="EditMeshBuild.Tangents"/>.
 /// </remarks>
 /// <param name="Position">The place, in the mesh's space, in meters.</param>
 /// <param name="Normal">The way the surface faces at the corner, a length of one.</param>

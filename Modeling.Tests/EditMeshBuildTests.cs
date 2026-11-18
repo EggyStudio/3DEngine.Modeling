@@ -125,4 +125,44 @@ public sealed class EditMeshBuildTests
             sum += Vector3.Dot(positions[indices[t]], Vector3.Cross(positions[indices[t + 1]], positions[indices[t + 2]]));
         return (float)(sum / 6.0);
     }
+
+    [Fact]
+    public void Each_Corners_Tangent_Runs_The_Way_Its_U_Grows_And_A_Mirrored_Face_Turns_Its_Hand()
+    {
+        var mesh = New();
+        mesh.Box(new Vector3(2, 3, 4));
+        mesh.SelectFacing(Vector3.UnitY);
+        mesh.UvPlanar(Vector3.UnitY);
+        mesh.Mirror(Vector3.UnitX);
+        var (vertices, indices) = Built(mesh).Single();
+        var tangents = EditMeshBuild.Tangents(vertices, indices);
+        Assert.Equal(vertices.Length, tangents.Length);
+
+        // Each triangle's direction of growing u, from its corners' places and coordinates.
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            var (a, b, c) = (vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
+            var (e1, e2) = (b.Position - a.Position, c.Position - a.Position);
+            var (d1, d2) = (b.Uv - a.Uv, c.Uv - a.Uv);
+            var u = (e1 * d2.Y - e2 * d1.Y) / (d1.X * d2.Y - d2.X * d1.Y);
+            var v = (e2 * d1.X - e1 * d2.X) / (d1.X * d2.Y - d2.X * d1.Y);
+            foreach (var corner in new[] { indices[i], indices[i + 1], indices[i + 2] })
+            {
+                var tangent = tangents[corner];
+                var along = new Vector3(tangent.X, tangent.Y, tangent.Z);
+                Assert.Equal(1, along.Length(), 1e-4f);
+                Assert.Equal(0, Vector3.Dot(along, vertices[corner].Normal), 1e-4f);
+                Assert.True(Vector3.Dot(along, Vector3.Normalize(u)) > 0.999f, $"corner {corner}'s tangent runs the way its u grows");
+                // the hand is the side the way v grows lies on
+                Assert.Equal(MathF.Sign(Vector3.Dot(Vector3.Cross(vertices[corner].Normal, along), v)), tangent.W);
+            }
+        }
+
+        // The top and its mirrored copy hold the same coordinates turned the other way round, so
+        // their hands differ.
+        var hands = vertices.Select((vertex, index) => (vertex, tangents[index].W)).Where(pair => pair.vertex.Normal.Y > 0.99f && pair.vertex.Position.X != 0)
+            .GroupBy(pair => MathF.Sign(pair.vertex.Position.X)).Select(group => group.First().W).ToArray();
+        Assert.Equal(2, hands.Length);
+        Assert.Equal(-hands[0], hands[1]);
+    }
 }

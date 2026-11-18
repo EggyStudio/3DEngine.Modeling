@@ -17,8 +17,8 @@ namespace Modeling;
 /// A face's texture coordinates are its own where a <c>uv</c> operation gave it some, and otherwise
 /// its corners' places in meters, seen along the axis its normal is nearest, so a texture of a
 /// meter's grid shows a meter on every face and carries on across faces meeting along a line, and a
-/// face moved shows the grid of the place it was moved to. An engine works a normal map's frame out
-/// from the texture coordinates, so the vertices carry no tangents.
+/// face moved shows the grid of the place it was moved to. The vertices carry no tangents, which an
+/// engine works out from the texture coordinates as it draws or takes from <see cref="Tangents"/>.
 /// </para>
 /// </remarks>
 public static class EditMeshBuild
@@ -102,5 +102,61 @@ public static class EditMeshBuild
             if (Vector3.Dot(Vector3.Normalize(areas[other]), normal) >= least) sum += areas[other];
         }
         return sum == Vector3.Zero ? normal : Vector3.Normalize(sum);
+    }
+
+    /// <summary>
+    /// Each corner's tangent, the way its texture's u grows across its face at a length of one and
+    /// square to its normal, with its hand in W, one where the way v grows lies to the normal's
+    /// left
+    /// of it and minus one where it lies to the right, for an engine that draws normal maps with a
+    /// tangent buffer.
+    /// </summary>
+    /// <remarks>
+    /// Each triangle's ways of growing u and v are worked out from its corners' places and
+    /// coordinates and summed at its corners, weighted by the triangle's size in them, and each
+    /// corner's sum is made square to its normal. A face mirrored, as a mirror's copy is, holds its
+    /// coordinates turned the other way round, so its hand is the other. A corner whose triangles
+    /// give no way, their coordinates all on a line, takes any way square to its normal and a hand
+    /// of one. The bitangent is the hand times the cross product of the normal and the tangent.
+    /// </remarks>
+    /// <param name="vertices">The corners, as <see cref="Slots"/> gives them.</param>
+    /// <param name="indices">Three corners a triangle, as <see cref="Slots"/> gives them.</param>
+    public static Vector4[] Tangents(MeshVertex[] vertices, uint[] indices)
+    {
+        ArgumentNullException.ThrowIfNull(vertices);
+        ArgumentNullException.ThrowIfNull(indices);
+        var us = new Vector3[vertices.Length];
+        var vs = new Vector3[vertices.Length];
+        for (int i = 0; i + 2 < indices.Length; i += 3)
+        {
+            var (a, b, c) = (indices[i], indices[i + 1], indices[i + 2]);
+            var (e1, e2) = (vertices[b].Position - vertices[a].Position, vertices[c].Position - vertices[a].Position);
+            var (d1, d2) = (vertices[b].Uv - vertices[a].Uv, vertices[c].Uv - vertices[a].Uv);
+            var area = d1.X * d2.Y - d2.X * d1.Y;
+            if (MathF.Abs(area) < 1e-12f) continue;
+            var u = (e1 * d2.Y - e2 * d1.Y) / area;
+            var v = (e2 * d1.X - e1 * d2.X) / area;
+            foreach (var corner in (uint[])[a, b, c])
+            {
+                us[corner] += u;
+                vs[corner] += v;
+            }
+        }
+
+        var tangents = new Vector4[vertices.Length];
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            var normal = vertices[i].Normal;
+            var along = us[i] - normal * Vector3.Dot(normal, us[i]);
+            if (along.LengthSquared() < 1e-20f)
+            {
+                along = Vector3.Cross(normal, MathF.Abs(normal.Y) < 0.9f ? Vector3.UnitY : Vector3.UnitX);
+                tangents[i] = new Vector4(Vector3.Normalize(along), 1);
+                continue;
+            }
+            along = Vector3.Normalize(along);
+            tangents[i] = new Vector4(along, Vector3.Dot(Vector3.Cross(normal, along), vs[i]) < 0 ? -1 : 1);
+        }
+        return tangents;
     }
 }

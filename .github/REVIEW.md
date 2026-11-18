@@ -539,3 +539,20 @@ a crossing on one lands 1.5e-4 m from the window's own corner, past the join's 1
 wants the mesh's points kept in doubles across cuts, or a face's slits cut by something other than
 ear clipping, either a change to the mesh's storage or to its cut beyond one attempt. Tangents come
 next. The tests pass, 178 with this one skipped.
+
+Tangents from the build, in the commit carrying this line. Its test, on a box whose top takes planar
+coordinates and is mirrored, each corner's tangent of unit length, square to its normal, running the
+way its u grows and its hand the side the way v grows lies on, and the top and its copy of opposite
+hands, failed before on there being no `EditMeshBuild.Tangents`. It sums each triangle's ways of
+growing u and v at its corners and makes each square to the corner's normal, giving a hand of one
+and any square way where a corner's coordinates give none. MeshVertex's and EditMeshBuild's remarks
+name it, the README's row says it, and CHEATSHEET.md is written again. The tests pass, 179 with the
+long wall skipped (dotnet test Modeling.Tests).
+
+Handoff. The three items agreed after the wrap are done, the taper, the cuts' fragmentation and
+tangents, and undo's snapshots are dropped while an undo is quick once the cuts keep their faces.
+Open: the long wall's drift, its test skipped by name with the reading above it, which wants the
+mesh's points in doubles across cuts or slit faces cut otherwise. No item is proposed. A fresh
+session reads AGENTS.md, this file's head, Decisions 9 to 11 and the Replies from the import's on,
+then NORM.md's N 4.9 to N 4.11, N 7.7 and N 7.9, builds under the GPU lock, and commits after
+`python3 -I modules/Tools/scripts/commitcheck.py . --staged --message=<file>`.

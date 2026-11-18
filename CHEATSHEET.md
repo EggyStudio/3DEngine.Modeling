@@ -149,6 +149,7 @@ void UvReset();                                          // Puts the selected fa
 
 class EditMeshBuild                                      // Builds an edit mesh into the vertices and triangles of one mesh for each material slot
 (MeshVertex[] Vertices, uint[] Indices)[] Slots(EditMesh mesh);  // The vertices and triangles of each material slot, in the order of the mesh's slots
+Vector4[] Tangents(MeshVertex[] vertices, uint[] indices);  // Each corner's tangent, the way its texture's u grows across its face at a length of one and square to its normal, with its hand in W, one where the way v grows lies to the normal's left of it and minus one where it lies to the right, for an engine that draws normal maps with a tangent buffer
 
 record struct MeshVertex                                 // A corner of a built mesh's triangle, its place, its normal and its texture coordinates
 MeshVertex(Vector3 Position, Vector3 Normal, Vector2 Uv);
