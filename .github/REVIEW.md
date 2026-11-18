@@ -556,3 +556,9 @@ mesh's points in doubles across cuts or slit faces cut otherwise. No item is pro
 session reads AGENTS.md, this file's head, Decisions 9 to 11 and the Replies from the import's on,
 then NORM.md's N 4.9 to N 4.11, N 7.7 and N 7.9, builds under the GPU lock, and commits after
 `python3 -I modules/Tools/scripts/commitcheck.py . --staged --message=<file>`.
+
+The drift across cuts, its first step, a reading in the commit carrying this line,
+2026-11-18-drift-floats.md. The mesh keeps every point in one list of floats used 155 times in 14
+files, and a cut makes the partition's points floats again once at its end; the partition and the
+join work in doubles. The steps after it are the uses put behind two accessors, the list made one of
+doubles behind them, the cut storing its points as they are, and the skipped test turned on.
