@@ -527,3 +527,15 @@ this file's head, Decisions 9 to 11 and the Replies from the import's on, then N
 N 4.11, N 7.7 and N 7.9. It builds under the GPU lock with `flock -s /run/user/1000/gpu.lock`, node
 reuse and the compiler server off, and commits after `python3 -I modules/Tools/scripts/commitcheck.py
 . --staged --message=<file>`. Tools is pinned by its `pin.py`, the devlog written with `--commits`.
+
+The drift, one bounded attempt, an open reading in the commit carrying this line. Its test, the
+wall of 200 m with 25 windows closed with its volume, failed first on 7 open edges and stands
+skipped by name with its reason. Within a cut the partition's arithmetic is in doubles already, so
+the attempt made each crossing come out the same on both sides of an edge, worked out from the
+edge's lesser end, and the wall kept its 7 open edges, so the change is left out. The drift enters
+between cuts: the mesh keeps its points as floats, each cut starts from them rounded, and the
+front's face, which reaches round the windows through slits, is cut into triangles thin enough that
+a crossing on one lands 1.5e-4 m from the window's own corner, past the join's 1e-4. Closing it
+wants the mesh's points kept in doubles across cuts, or a face's slits cut by something other than
+ear clipping, either a change to the mesh's storage or to its cut beyond one attempt. Tangents come
+next. The tests pass, 178 with this one skipped.

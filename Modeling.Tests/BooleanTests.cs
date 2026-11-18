@@ -286,4 +286,20 @@ public sealed class BooleanTests : IDisposable
         // the wall's six faces and a window's four sides, with the front and back pieces round it
         Assert.InRange(wall.FaceCount, 6, 10 + 8 * 25);
     }
+
+    [Fact(Skip = "Open: a corner 22 m along a wall of 200 m drifts by 1.5e-4 m between cuts, the mesh's points kept as floats and a slit face cut into thin triangles, and 7 edges stay open; REVIEW.md's Replies hold the reading.")]
+    public void A_Long_Wall_With_Many_Windows_Stays_Closed_With_Its_Volume()
+    {
+        // The windows of the wall above along a wall of 200 m, whose front reaches far past them.
+        var lines = new List<string> { "box 200 3 0.2" };
+        for (int i = 0; i < 25; i++)
+        {
+            lines.Add("select +z");
+            lines.Add($"cut window 0.5 0.5 {(1 + i * 0.9f).ToString(System.Globalization.CultureInfo.InvariantCulture)} 1");
+        }
+        var wall = EditMesh.FromRecipe(string.Join("\n", lines));
+
+        Assert.Equal(0, wall.OpenEdges);
+        Assert.Equal(200 * 3 * 0.2f - 25 * 0.5f * 0.5f * 0.2f, wall.Volume, 1e-2f);
+    }
 }
