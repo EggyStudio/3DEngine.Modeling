@@ -134,4 +134,54 @@ public sealed class SlotTests : IDisposable
         // the slot has no texture to read the width of
         Assert.Null(mesh.SelectedTextureWidth());
     }
+
+    [Fact]
+    public void A_glTF_File_Holds_Each_Slots_Color_Texture_And_Light()
+    {
+        var mesh = Room();
+        mesh.SlotMap("wall", MaterialMap.Albedo, Bricks);
+        mesh.SlotColor("floor", new Vector4(1, 0.502f, 0, 1));
+        mesh.SlotRoughness("floor", 0.4f);
+        mesh.SelectFacing(Vector3.UnitY);
+        mesh.Material("lamp");
+        mesh.SlotEmissive("lamp", new Vector3(4, 2, 1));
+        mesh.Export("level/room.gltf");
+
+        using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(_folder.File("level/room.gltf")));
+        var root = json.RootElement;
+        var materials = root.GetProperty("materials").EnumerateArray().ToDictionary(material => material.GetProperty("name").GetString()!);
+        // a picture is named by its path from the file's folder
+        Assert.Equal("../bricks.png", root.GetProperty("images")[0].GetProperty("uri").GetString());
+        Assert.Equal(0, materials["wall"].GetProperty("pbrMetallicRoughness").GetProperty("baseColorTexture").GetProperty("index").GetInt32());
+
+        // glTF's factor is linear, the recipe's 0.502 for 128 being a fifth
+        var floor = materials["floor"].GetProperty("pbrMetallicRoughness");
+        var factor = floor.GetProperty("baseColorFactor").EnumerateArray().Select(part => part.GetSingle()).ToArray();
+        Assert.All(factor.Zip(new[] { 1f, 0.215897f, 0f, 1f }), pair => Assert.Equal(pair.Second, pair.First, 1e-5f));
+        Assert.Equal(0.4f, floor.GetProperty("roughnessFactor").GetSingle());
+
+        var lamp = materials["lamp"];
+        Assert.Equal(new[] { 1f, 0.5f, 0.25f }, lamp.GetProperty("emissiveFactor").EnumerateArray().Select(part => part.GetSingle()));
+        Assert.Equal(4, lamp.GetProperty("extensions").GetProperty("KHR_materials_emissive_strength").GetProperty("emissiveStrength").GetSingle());
+        Assert.Equal("KHR_materials_emissive_strength", root.GetProperty("extensionsUsed")[0].GetString());
+    }
+
+    [Fact]
+    public void A_Slot_With_Neither_Color_Nor_Texture_Takes_The_Engines_Prototype_Color()
+    {
+        var mesh = Room();
+        mesh.Export("plain.gltf");
+        mesh.Export("tinted.gltf", prototypeColor: name => name == "floor" ? new Vector4(0.5f, 0.5f, 0.5f, 1) : Vector4.One);
+
+        float[] Floor(string file)
+        {
+            using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(_folder.File(file)));
+            var floor = json.RootElement.GetProperty("materials").EnumerateArray().Single(material => material.GetProperty("name").GetString() == "floor");
+            return [.. floor.GetProperty("pbrMetallicRoughness").GetProperty("baseColorFactor").EnumerateArray().Select(part => part.GetSingle())];
+        }
+
+        Assert.Equal(new[] { 1f, 1f, 1f, 1f }, Floor("plain.gltf"));
+        // sRGB's half is a fifth of the light, about 0.214
+        Assert.Equal(0.214041f, Floor("tinted.gltf")[0], 1e-5f);
+    }
 }

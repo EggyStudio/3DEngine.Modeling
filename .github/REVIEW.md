@@ -309,3 +309,22 @@ holds the mend of `7e69a59`, with `python3 -I -B ../Materials/scripts/textures.p
 Modeling/Textures/textures.json`. The carpet's albedo differs in 622 bytes and the wallpaper's in
 3,306 (cmp -l), at 45.3 and 46.2 dB, and no other file changed, the normals, the surfaces and the
 manifest the same byte for byte.
+
+Item 3's third part, the glTF exchange, in the commit carrying this line. 3DEngine's GltfWriter
+moves as the module's, writing through the mesh's files, and `EditMesh.Export` takes the flat API's
+export, a primitive and a material a slot a face is in, the look's sRGB color decoded to glTF's
+linear factor, with the engine's prototype color by a slot's name as a parameter, since the two
+engines' palettes differ, white where none is given. `IModelFiles` gains `WriteBytes`, a file of
+bytes written whole, which the glTF's buffer beside it needs and the host and ModelFolder implement.
+BevyCSharp's GltfReader moves as the module's, reading a `.gltf` with its buffers inside or beside it
+or a `.glb` into a part a material, placed by the scene's nodes, so ModelFolder imports a glTF with
+no engine. 3DEngine's ExchangeTests come with it, the engine's model reader's reading of the written
+box taken by the module's reader, with `two-pieces.gltf`, and SlotTests' glTF test, with one more of
+the prototype color. The strict build is clean and the tests pass, 155 where there were 147 (dotnet
+test Modeling.Tests).
+
+One difference with BevyCSharp found here and left until it is answered. BevyCSharp's import keeps
+each material's look as a slot's, each face's own texture coordinates, and the smoothing its
+normals give, where the module's keeps the material's name alone. Taking it widens `ModelPart` with
+a look, texture coordinates and normals, a public shape both engines' readers fill, so it is
+proposed here as a part of its own before part 4.

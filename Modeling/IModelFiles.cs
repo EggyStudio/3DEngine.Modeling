@@ -4,8 +4,9 @@ namespace Modeling;
 
 /// <summary>
 /// The files an <see cref="EditMesh"/> reads and writes, its recipe's own file, the recipes its
-/// <c>join</c> lines name, the model files its <c>import</c> lines name and the textures its slots
-/// name, found by a path as the program that holds the mesh finds its files.
+/// <c>join</c> lines name, the model files its <c>import</c> lines name, the textures its slots
+/// name and the glTF file it is exported as, found by a path as the program that holds the mesh
+/// finds its files.
 /// </summary>
 /// <remarks>
 /// An engine implements it with its own lookup of a program's files and its own model reader, and
@@ -29,6 +30,16 @@ public interface IModelFiles
     /// The file or its folder may not be written.
     /// </exception>
     string WriteText(string path, string text);
+
+    /// <summary>
+    /// Writes a file of bytes whole, as <see cref="WriteText"/> writes text, a glTF file's and its
+    /// buffer's, and answers the full path it was written to.
+    /// </summary>
+    /// <exception cref="IOException">The file could not be written.</exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The file or its folder may not be written.
+    /// </exception>
+    string WriteBytes(string path, byte[] bytes);
 
     /// <summary>Reads a model file's meshes, each placed as the file's nodes place it.</summary>
     /// <exception cref="FileNotFoundException">There is no such file.</exception> <exception

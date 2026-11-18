@@ -45,7 +45,7 @@ declares one interface for what it needs of an engine.
 
 | Interface | What the engine answers |
 |---|---|
-| `IModelFiles` | A text file read and written whole by its path, a recipe's, a model file's meshes as triangles placed by the file's nodes, each a `ModelPart`, and an image's width in pixels, which every file a mesh's recipe names is read through |
+| `IModelFiles` | A text file read and written whole by its path, a recipe's, a file of bytes written whole, a glTF file's and its buffer's, a model file's meshes as triangles placed by the file's nodes, each a `ModelPart`, and an image's width in pixels, which every file a mesh's recipe names is read through |
 
 A mesh is made with the engine's files, `new EditMesh(files)`, or read with them by
 `EditMesh.Load` or `EditMesh.FromRecipe`, and every mesh a join, a boolean or a modifier makes inside
@@ -86,6 +86,7 @@ using Modeling;
 public sealed class HostFiles : IModelFiles
 {
     private readonly Dictionary<string, string> _texts = [];
+    private readonly Dictionary<string, byte[]> _bytes = [];
     private readonly Dictionary<string, IReadOnlyList<ModelPart>> _models = [];
     private readonly Dictionary<string, int> _images = [];
 
@@ -103,6 +104,14 @@ public sealed class HostFiles : IModelFiles
         _texts[path] = text;
         return path;
     }
+
+    public string WriteBytes(string path, byte[] bytes)
+    {
+        _bytes[path] = bytes;
+        return path;
+    }
+
+    public byte[] Bytes(string path) => _bytes[path];
 
     public IReadOnlyList<ModelPart> ReadModel(string path) =>
         _models.TryGetValue(path, out var parts) ? parts : throw new FileNotFoundException($"There is no model at {path}.", path);

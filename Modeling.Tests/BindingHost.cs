@@ -12,6 +12,7 @@ using Modeling;
 public sealed class HostFiles : IModelFiles
 {
     private readonly Dictionary<string, string> _texts = [];
+    private readonly Dictionary<string, byte[]> _bytes = [];
     private readonly Dictionary<string, IReadOnlyList<ModelPart>> _models = [];
     private readonly Dictionary<string, int> _images = [];
 
@@ -29,6 +30,14 @@ public sealed class HostFiles : IModelFiles
         _texts[path] = text;
         return path;
     }
+
+    public string WriteBytes(string path, byte[] bytes)
+    {
+        _bytes[path] = bytes;
+        return path;
+    }
+
+    public byte[] Bytes(string path) => _bytes[path];
 
     public IReadOnlyList<ModelPart> ReadModel(string path) =>
         _models.TryGetValue(path, out var parts) ? parts : throw new FileNotFoundException($"There is no model at {path}.", path);

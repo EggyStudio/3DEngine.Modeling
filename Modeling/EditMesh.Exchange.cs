@@ -2,7 +2,8 @@ using System.Numerics;
 
 namespace Modeling;
 
-// A model file read into the mesh through the mesh's files, its triangles joined back into faces.
+// A model file read into the mesh through the mesh's files, its triangles joined back into faces,
+// and the mesh written as a glTF file through them.
 public sealed partial class EditMesh
 {
     /// <summary>
@@ -76,6 +77,64 @@ public sealed partial class EditMesh
         foreach (var face in _selectedFaces) _selectedVertices.UnionWith(_faces[face].Corners);
         Compact([]);
         Did($"import {path}");
+    }
+
+    /// <summary>
+    /// Writes the mesh with its modifiers applied as a glTF 2.0 file through the mesh's files, a
+    /// primitive and a material for each slot a face is in, and answers the file's full path.
+    /// </summary>
+    /// <param name="path">The <c>.gltf</c> file's path, as the mesh's files find it.</param>
+    /// <param name="embedBuffer">
+    /// Whether the buffer goes into the file as a data URI rather than a <c>.bin</c> file beside
+    /// it.
+    /// </param>
+    /// <param name="prototypeColor">
+    /// The color, as sRGB numbers from zero to one with its alpha, of a slot whose look gives
+    /// neither a color nor a texture, by the slot's name, as the engine's prototype material tints
+    /// its grid, or null for white.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// Each material is named as its slot is, with the look's color decoded from sRGB to the linear
+    /// factor glTF holds, its metalness, its roughness, 0.85 where the look gives none, its
+    /// emission and its maps, each image named by its path from the file's folder. A slot no face
+    /// is in is left out, as is a slot's grid, which is the engine's.
+    /// </para>
+    /// <para>
+    /// The vertices are those <see cref="EditMeshBuild.Slots"/> gives, so a program that opens the
+    /// file sees the faces' own normals and texture coordinates as the engine draws them.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="IOException">A file could not be written.</exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A file or its folder may not be written.
+    /// </exception>
+    public string Export(string path, bool embedBuffer = false, Func<string, Vector4>? prototypeColor = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+        var modified = Modified();
+        var used = Enumerable.Range(0, modified.FaceCount).Select(modified.SlotIndexOf).ToHashSet();
+        var built = EditMeshBuild.Slots(this);
+        var primitives = Enumerable.Range(0, built.Length).Where(used.Contains)
+            .Select(slot => Primitive(slot, built[slot].Vertices, built[slot].Indices, prototypeColor)).ToArray();
+        return GltfWriter.Write(Files, path, Path.GetFileNameWithoutExtension(path), primitives, embedBuffer);
+    }
+
+    private GltfWriter.Primitive Primitive(int slot, MeshVertex[] vertices, uint[] indices, Func<string, Vector4>? prototypeColor)
+    {
+        var (name, look) = (_slots[slot], _looks[slot]);
+        var srgb = look.Color ?? (look.Texture is null && prototypeColor is not null ? prototypeColor(name) : Vector4.One);
+        return new GltfWriter.Primitive(name, new Vector4(Srgb.Decode(srgb.X), Srgb.Decode(srgb.Y), Srgb.Decode(srgb.Z), srgb.W), vertices, indices)
+        {
+            Metallic = look.Metallic ?? 0,
+            Roughness = look.Roughness ?? 0.85f,
+            Emissive = look.Emissive ?? Vector3.Zero,
+            Texture = look.Texture,
+            NormalMap = look.NormalMap,
+            OcclusionMap = look.OcclusionMap,
+            MetallicRoughnessMap = look.MetallicRoughnessMap,
+            EmissiveMap = look.EmissiveMap,
+        };
     }
 
     /// <summary>

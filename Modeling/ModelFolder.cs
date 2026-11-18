@@ -8,9 +8,9 @@ namespace Modeling;
 /// and for a program with no engine.
 /// </summary>
 /// <remarks>
-/// It reads no model file, since the module holds no model reader, so a recipe's <c>import</c> line
-/// is refused here and read through an engine's <see cref="IModelFiles"/>. An image's width is read
-/// from the header of a PNG or a KTX2 file.
+/// A model file is read as glTF 2.0, a <c>.gltf</c> with its buffers inside it or beside it or a
+/// <c>.glb</c>, by the module's own reader, so a recipe's <c>import</c> of one builds with no
+/// engine. An image's width is read from the header of a PNG or a KTX2 file.
 /// </remarks>
 /// <param name="root">
 /// The folder a relative path is read below, or null for the working directory at each call.
@@ -53,11 +53,23 @@ public sealed class ModelFolder(string? root = null) : IModelFiles
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<ModelPart> ReadModel(string path)
+    /// <remarks>
+    /// Written under a name of its own and moved into place.
+    /// </remarks>
+    public string WriteBytes(string path, byte[] bytes)
     {
-        if (!File.Exists(Full(path))) throw new FileNotFoundException($"There is no model at {path}.", path);
-        throw new FormatException($"{path} is a model file, which a folder of the module does not read, since the module holds no model reader.");
+        ArgumentNullException.ThrowIfNull(bytes);
+        var full = Full(path);
+        if (Path.GetDirectoryName(full) is { Length: > 0 } folder) Directory.CreateDirectory(folder);
+        var part = full + ".part";
+        File.WriteAllBytes(part, bytes);
+        File.Move(part, full, overwrite: true);
+        return full;
     }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<ModelPart> ReadModel(string path) =>
+        GltfReader.Read(path, file => File.Exists(Full(file)), file => File.ReadAllBytes(Full(file)));
 
     /// <inheritdoc/>
     public int? ImageWidth(string path)
