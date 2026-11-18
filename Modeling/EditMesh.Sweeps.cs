@@ -15,9 +15,9 @@ public sealed partial class EditMesh
     /// <remarks>
     /// A copy is wound the other way from its face, so it faces out as the face does. A vertex on
     /// the plane is put exactly on it and kept for the copy, so a half whose open side lies on the
-    /// plane mirrored makes a whole with no vertex twice. A face lying in the plane is not copied,
-    /// since the copy would lie on it facing the other way, and a half to be mirrored is left open
-    /// there.
+    /// plane mirrored makes a whole with no vertex twice. A selected face lying in the plane would
+    /// lie inside the whole against its copy facing the other way, and is taken away, so a half
+    /// closed there mirrored is the same whole as one left open.
     /// </remarks>
     public void Mirror(Vector3 axis, Vector3 pivot = default)
     {
@@ -37,11 +37,14 @@ public sealed partial class EditMesh
             return copies[vertex] = AddVertex(_positions[vertex] - normal * (2 * distance));
         }
 
+        // A selected face in the plane would lie inside the whole, against its copy facing the
+        // other way, so it is taken away before the rest are copied.
+        RemoveFaces(_selectedFaces.Where(face => _faces[face].Corners.All(corner => MathF.Abs(Vector3.Dot(_positions[corner] - pivot, normal)) <= OnPlane)).ToHashSet());
+
         var made = new List<int>();
         foreach (var index in _selectedFaces.Order().ToArray())
         {
             var face = _faces[index];
-            if (face.Corners.All(corner => MathF.Abs(Vector3.Dot(_positions[corner] - pivot, normal)) <= OnPlane)) continue;
             var corners = face.Corners.Select(Copy).ToArray();
             Array.Reverse(corners);
             made.Add(AddFace(corners, face.Slot, face.Smooth, face.Uvs?.Reverse().ToArray()));
@@ -184,11 +187,29 @@ public sealed partial class EditMesh
     /// </summary>
     /// <remarks>
     /// A factor of one puts each vertex on its neighbors' mean, and smaller ones part of the way,
-    /// so smoothing a box's corners all at once by a half draws it in to a smaller box.
+    /// so smoothing a box's corners all at once by a half draws it in to a smaller box. A smooth
+    /// repeated is that many passes, each from where the one before left the vertices, and its line
+    /// names the count where it is more than one.
     /// </remarks>
-    public void Smooth(float factor = 0.5f)
+    /// <param name="factor">
+    /// How far each vertex moves toward its neighbors' mean, from zero to one.
+    /// </param>
+    /// <param name="repeat">How many passes are made, from one to a hundred.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The factor is not from zero to one, or the passes not from one to a hundred.
+    /// </exception>
+    public void Smooth(float factor = 0.5f, int repeat = 1)
     {
         if (!(factor >= 0 && factor <= 1)) throw new ArgumentOutOfRangeException(nameof(factor), factor, "A smooth's factor is from zero to one.");
+        if (repeat < 1 || repeat > 100) throw new ArgumentOutOfRangeException(nameof(repeat), repeat, "A smooth repeats from one to a hundred times.");
+        for (int pass = 0; pass < repeat; pass++) SmoothPass(factor);
+        Changed();
+        Did(repeat == 1 ? $"smooth {F(factor)}" : $"smooth {F(factor)} {repeat}");
+    }
+
+    // One pass of the smooth, every selected vertex moved from where all of them stood before it.
+    private void SmoothPass(float factor)
+    {
 
         var neighbors = new Dictionary<int, List<int>>();
         foreach (var (low, high) in EdgeUses().Keys)
@@ -205,8 +226,5 @@ public sealed partial class EditMesh
             return _positions[vertex] + (mean - _positions[vertex]) * factor;
         });
         foreach (var (vertex, position) in moved) _positions[vertex] = position;
-
-        Changed();
-        Did($"smooth {F(factor)}");
     }
 }

@@ -146,6 +146,63 @@ public sealed partial class EditMesh
     }
 
     /// <summary>
+    /// Adds a modifier that joins a solid to the mesh, takes it away or keeps where the two
+    /// overlap, as <see cref="Union"/>, <see cref="Subtract"/> and <see cref="Intersect"/> do, each
+    /// time the mesh is built.
+    /// </summary>
+    /// <param name="kind">The boolean, <c>union</c>, <c>subtract</c> or <c>intersect</c>.</param>
+    /// <param name="pathOrSolid">
+    /// A model's path, read at each build, or a solid primitive's line.
+    /// </param>
+    /// <param name="at">
+    /// Where a model read from its path is moved to, which a primitive's line gives itself.
+    /// </param>
+    /// <remarks>
+    /// The mesh stays as it was shaped, so a door cut by the modifier moves with a wall moved after
+    /// it, and a model named by its path is read again at each build, as a join reads it. A solid's
+    /// line is run and a model's file read once as the modifier is added, so a line that is no
+    /// solid or a file that is no model is refused here, the stack as it was, and not at every
+    /// build after.
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// The kind is none of the three, or a primitive's line is moved by <paramref name="at"/>.
+    /// </exception>
+    /// <exception cref="FileNotFoundException">There is no model at the path.</exception>
+    /// <exception cref="FormatException">
+    /// A solid primitive's line is not an operation, or the model's recipe holds a line that is
+    /// not.
+    /// </exception>
+    public void ModifierBoolean(string kind, string pathOrSolid, Vector3 at = default)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(pathOrSolid);
+        if (kind is not ("union" or "subtract" or "intersect")) throw new ArgumentException($"A boolean modifier is a union, subtract or intersect, and {kind} is none.", nameof(kind));
+        var words = pathOrSolid.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length > 1 && Solids.Contains(words[0]))
+        {
+            if (at != Vector3.Zero) throw new ArgumentException("A primitive's line places it with its own at, and a boolean moves only a model read from a file.", nameof(at));
+            Solid(pathOrSolid);
+        }
+        else if (pathOrSolid.Any(char.IsWhiteSpace))
+        {
+            throw new ArgumentException("A model's path in a boolean is one word, with no space in it, or a solid primitive's line.", nameof(pathOrSolid));
+        }
+        else
+        {
+            Nested(pathOrSolid);
+        }
+
+        AddModifier($"boolean {kind} {pathOrSolid}{(at == Vector3.Zero ? "" : " at " + V(at))}", mesh =>
+        {
+            switch (kind)
+            {
+                case "union": mesh.Union(pathOrSolid, at); break;
+                case "subtract": mesh.Subtract(pathOrSolid, at); break;
+                default: mesh.Intersect(pathOrSolid, at); break;
+            }
+        });
+    }
+
+    /// <summary>
     /// Adds a modifier that cuts every face of more than three corners into triangles.
     /// </summary>
     public void ModifierTriangulate() => AddModifier("triangulate", mesh => mesh.Triangulate());

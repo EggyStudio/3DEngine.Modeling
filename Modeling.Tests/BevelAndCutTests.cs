@@ -104,6 +104,33 @@ public sealed class BevelAndCutTests
     }
 
     [Fact]
+    public void An_Edge_Selected_By_Its_Ends_Selects_Them_And_Is_What_A_Loop_Cut_Rings()
+    {
+        var mesh = Box(new Vector3(2, 3, 4));
+        int At(Vector3 place) => Enumerable.Range(0, mesh.VertexCount).Single(vertex => mesh.Position(vertex) == place);
+        var (foot, head) = (At(Vector3.Zero), At(new Vector3(0, 3, 0)));
+        mesh.SelectEdges([(foot, head)]);
+
+        // its two ends, no face, and the one edge between them
+        Assert.Equal((2, 1, 0), (Info(mesh).SelectedVertexCount, Info(mesh).SelectedEdgeCount, Info(mesh).SelectedFaceCount));
+        Assert.Equal($"select edge {foot} {head}", mesh.Recipe[^1]);
+        mesh.LoopCut(0.25f);
+        Assert.Equal((12, 20, 10), Counts(mesh));
+        Assert.Equal(new[] { $"select edge {foot} {head}", "loopcut 0.25" }, mesh.Recipe.ToArray()[^2..]);
+        Assert.Equal(Counts(mesh), Counts(EditMesh.FromRecipe(mesh.RecipeText)));
+
+        // Taking an edge away takes its ends and every face with a corner at one.
+        var whole = Box(new Vector3(2, 3, 4));
+        whole.SelectAll();
+        whole.SelectEdges([(At(Vector3.Zero), At(new Vector3(0, 3, 0)))], SelectionMode.Remove);
+        Assert.Equal((6, 2), (Info(whole).SelectedVertexCount, Info(whole).SelectedFaceCount));
+
+        // A pair no face runs between, and an end with no other, are refused.
+        Assert.Throws<ArgumentException>(() => mesh.SelectEdges([(foot, At(new Vector3(2, 3, 4)))]));
+        Assert.Throws<FormatException>(() => mesh.Run("select edge 0"));
+    }
+
+    [Fact]
     public void A_Loop_Cut_Across_A_Boxs_Upright_Edge_Rings_Its_Four_Sides()
     {
         var mesh = Box(new Vector3(2, 3, 4));

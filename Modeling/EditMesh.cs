@@ -191,6 +191,12 @@ public sealed partial class EditMesh
     public int OpenEdges => EdgeUses().Values.Count(use => use.Forward != 1 || use.Backward != 1);
 
     /// <summary>
+    /// Whether the mesh has faces and every edge is shared by two faces running along it in
+    /// opposite directions, so it holds a volume and a collider of it has an inside.
+    /// </summary>
+    public bool IsClosed => _faces.Count > 0 && OpenEdges == 0;
+
+    /// <summary>
     /// The space a closed mesh holds, in cubic meters, negative where its faces face in.
     /// </summary>
     /// <remarks>

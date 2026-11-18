@@ -198,12 +198,49 @@ public sealed class ModifierTests
         clock.Stop();
 
         Assert.Equal(6144 * 2 * 4 * 6, built.Single().Indices.Length);
-        Assert.True(clock.ElapsedMilliseconds < Budget, "a stack this size builds within {0} ms");
+        Assert.True(clock.ElapsedMilliseconds < Budget, $"a stack this size builds within {Budget} ms");
     }
 
-    // Several times what the stack's first build in a test process takes on four cores of a Linux
-    // container, so a slower runner holds the budget.
+    // A build whose work grows with the faces once over is in time, and one whose work for each
+    // face grows with the count of faces, as a corner's normal found by searching every face would,
+    // is past it. The stack's first build in a process takes 135 to 151 ms, timed round
+    // EditMeshBuild.Slots in a Debug build three times, so the bound stands at ten times that.
     private const long Budget = 1500;
+
+    [Fact]
+    public void A_Boolean_Modifier_Takes_A_Solid_Away_At_Each_Build_And_Leaves_The_Mesh_As_Shaped()
+    {
+        var mesh = Box(new Vector3(2));
+        mesh.ModifierBoolean("subtract", "box 1 1 1 at 1.5 1.5 1.5");
+
+        var built = mesh.Modified();
+        Assert.True(MeshInfo.Of(built).IsClosed);
+        Assert.Equal(8f - 0.125f, built.Volume, Close);
+        Assert.Equal(6, mesh.FaceCount);
+        Assert.Equal(new[] { "boolean subtract box 1 1 1 at 1.5 1.5 1.5" }, mesh.Modifiers);
+        Assert.Equal("modifier boolean subtract box 1 1 1 at 1.5 1.5 1.5", Lines(mesh)[^1]);
+        Assert.Equal(built.Volume, EditMesh.FromRecipe(mesh.RecipeText).Modified().Volume, Close);
+
+        // A boolean with a model that is not there, or of no kind, is refused as it is added, the
+        // stack as it was.
+        Assert.Throws<FileNotFoundException>(() => mesh.ModifierBoolean("union", "models/not-there.model"));
+        Assert.Throws<ArgumentException>(() => mesh.ModifierBoolean("join", "box 1 1 1"));
+        Assert.Throws<FormatException>(() => mesh.ModifierBoolean("union", "box 1 1"));
+        Assert.Throws<FormatException>(() => mesh.Run("modifier boolean join box 1 1 1"));
+        Assert.Single(mesh.Modifiers);
+    }
+
+    [Fact]
+    public void A_Modifier_Line_After_Add_Is_Read_As_The_Line_Alone()
+    {
+        var mesh = Box(new Vector3(2));
+        mesh.Run("modifier add subdivision 1");
+        mesh.Run("modifier add triangulate");
+
+        Assert.Equal(new[] { "subdivision 1", "triangulate" }, mesh.Modifiers);
+        Assert.Equal(new[] { "modifier subdivision 1", "modifier triangulate" }, Lines(mesh)[^2..]);
+        Assert.Throws<FormatException>(() => mesh.Run("modifier add"));
+    }
 
     [Fact]
     public void A_Modifier_Out_Of_Range_Is_Refused()

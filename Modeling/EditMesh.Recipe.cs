@@ -21,6 +21,12 @@ public sealed partial class EditMesh
     /// <summary>The lines taken back and not done again, the next to be done again first.</summary>
     public IReadOnlyCollection<string> Undone => _undone;
 
+    /// <summary>Whether there is an operation to undo.</summary>
+    public bool CanUndo => _recipe.Count > 0;
+
+    /// <summary>Whether there is an undone operation to do again.</summary>
+    public bool CanRedo => _undone.Count > 0;
+
     /// <summary>The recipe as the text of its file, its header first.</summary>
     public string RecipeText
     {
@@ -235,6 +241,7 @@ public sealed partial class EditMesh
                 case "wedge": mesh.Wedge(Vector(), Where(out centered), centered); break;
                 case "cylinder": mesh.Cylinder(Number(), Number(), Count(), Where(out centered), centered); break;
                 case "cone": mesh.Cone(Number(), Number(), Count(), Where(out centered), centered); break;
+                case "tube": Tube(mesh); break;
                 case "stairs": mesh.Stairs(Count(), Number(), Number(), Number(), Where(out centered), centered); break;
                 case "arch": mesh.Arch(Number(), Number(), Number(), Count(), Where(out centered), centered); break;
                 case "select": Select(mesh); break;
@@ -265,7 +272,7 @@ public sealed partial class EditMesh
                 case "knife": mesh.Knife(Axis(), Pivot() ?? Vector3.Zero); break;
                 case "mirror": mesh.Mirror(Axis(), Pivot() ?? Vector3.Zero); break;
                 case "spin": mesh.Spin(Axis(), Number(), Count(), Pivot() ?? Vector3.Zero); break;
-                case "smooth": mesh.Smooth(Number()); break;
+                case "smooth": mesh.Smooth(Number(), _at < words.Length ? Count() : 1); break;
                 case "modifier": Modifier(mesh); break;
                 case "import": mesh.Import(Word("a model file's path")); break;
                 case "union": mesh.Union(PathOrSolid(), Pivot() ?? Vector3.Zero); break;
@@ -302,6 +309,12 @@ public sealed partial class EditMesh
 
             switch (what)
             {
+                case "edge":
+                    var edges = new List<(int, int)>();
+                    while (_at < words.Length) edges.Add((Count(), Count()));
+                    if (edges.Count == 0) throw new FormatException("select edge takes the two ends of an edge or more.");
+                    mesh.SelectEdges([.. edges], mode);
+                    return;
                 case "face":
                     var faces = new List<int>();
                     while (_at < words.Length) faces.Add(Count());
@@ -357,6 +370,10 @@ public sealed partial class EditMesh
         private void Modifier(EditMesh mesh)
         {
             var what = Word("a modifier");
+            // A modifier's line may follow add, a form saved recipes hold, and is read as the line
+            // alone.
+            if (what == "add" && _at < words.Length && words[_at] is not ("add" or "move" or "remove" or "apply"))
+                what = Word("a modifier");
             switch (what)
             {
                 case "mirror":
@@ -380,6 +397,11 @@ public sealed partial class EditMesh
                     return;
                 case "solidify":
                     mesh.ModifierSolidify(Number());
+                    return;
+                case "boolean":
+                    var kind = Word("union, subtract or intersect");
+                    if (kind is not ("union" or "subtract" or "intersect")) throw new FormatException($"A boolean modifier is a union, subtract or intersect, and {kind} is none.");
+                    mesh.ModifierBoolean(kind, PathOrSolid(), Pivot() ?? Vector3.Zero);
                     return;
                 case "triangulate":
                     mesh.ModifierTriangulate();
@@ -549,6 +571,19 @@ public sealed partial class EditMesh
             if (_at >= words.Length || words[_at] != word) return false;
             _at++;
             return true;
+        }
+
+        private void Tube(EditMesh mesh)
+        {
+            var sides = Count();
+            var points = new List<Vector3>();
+            var radii = new List<float>();
+            while (_at < words.Length)
+            {
+                points.Add(Vector());
+                radii.Add(Number());
+            }
+            mesh.Tube(points, radii, sides);
         }
 
         private Vector3 Vector() => new(Number(), Number(), Number());

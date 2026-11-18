@@ -229,3 +229,45 @@ console's commands. SourceTests holds comment lines to 100 columns (N 4.11) and 
 before they were wrapped. The README's table names what the module holds, and AGENTS.md's devlog row
 is a link. The strict build is clean and the tests pass, 133 where there were 4 (dotnet test
 Modeling.Tests).
+
+Item 3's second part, BevyCSharp's differences, in the commit carrying this line. A harness in the
+session's scratch compiles BevyCSharp's Modeling kernel beside the module and runs 2,112 recipes,
+each base primitive with each line the moved tests write, with the top selected and without, and
+230 of BevyCSharp's own test lines after a box. These are folded in:
+
+- the tube primitive, `tube SIDES X Y Z RADIUS` and on, with BevyCSharp's four tests of it;
+- the selection of edges by their ends, `select edge A B` and on;
+- the boolean modifier, `modifier boolean` with a kind, a model's path or a solid's line and an
+  `at`, a solid's line run and a model read once as it is added, so a missing one is refused there;
+- `modifier add` before a modifier's line, BevyCSharp's form, read as the line alone, the module
+  writing its own;
+- `smooth F N`, a smooth of N passes, its line naming the count where it is more than one;
+- IsClosed, CanUndo, CanRedo and LookOf by a slot's name, which BevyCSharp's binding reads;
+- a selected face lying in a mirror's plane taken away, so a half closed there mirrored is closed,
+  a mend whose test turns 3DEngine's assertion of the face kept inside and failed on 11 faces
+  against 10 before it. It changes 46 of part 1's 4,004 recipes, each one mirroring a face in the
+  plane, and the rest still give 3DEngine's results to the bit.
+
+These are left, each with its reason:
+
+- the chained returns and BevyCSharp's names, AddModifier, SlotTexture and the rest, which its
+  binding maps onto the module's;
+- a refusal joined by a colon, since STYLE.md has the comma;
+- the selection BevyCSharp keeps or widens after a dissolve, a knife, a mirror and a spin, since
+  the module selects what an operation made;
+- the fill and the loop cut BevyCSharp refuses where nothing in the selection fits them, so every
+  recipe 3DEngine saved reads and builds as it did;
+- the bevel's corners where three beveled edges meet, a face spun, which the module sweeps closed
+  and BevyCSharp leaves open, and the subdivision of a face of more than four corners, each a
+  design of its own that the module keeps with 3DEngine's tests;
+- a bevel of one segment written `bevel W 1`, the module reading BevyCSharp's `bevel W` as the
+  same mesh;
+- the knife's plane where no point is given, through the origin here and through the selection's
+  middle in BevyCSharp, one line meaning two planes. No recipe file of the engines or the game holds
+  a knife, so the module keeps 3DEngine's and BevyCSharp's binding writes the point where it means
+  the middle;
+- the last bits of a rotation's and a planar projection's numbers.
+
+The budget's comment in ModifierTests says what the bound catches and the time it is measured
+against. The strict build is clean and the tests pass, 141 where there were 133 (dotnet test
+Modeling.Tests).

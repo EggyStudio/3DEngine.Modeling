@@ -106,6 +106,8 @@ public sealed class SlotTests : IDisposable
         var again = EditMesh.FromRecipe(mesh.RecipeText, files: _folder.Files);
         Assert.Equal(new[] { "default", "wall", "floor", "lamp" }, again.Slots.ToArray());
         var wall = again.LookAt(1);
+        Assert.Same(wall, again.LookOf("wall"));
+        Assert.Throws<ArgumentException>(() => again.LookOf("glass"));
         Assert.Equal((new Vector4(0.8f, 0.749f, 0.702f, 1), Bricks, (string?)null), (wall.Color, wall.Texture, wall.NormalMap));
         // three places bring a byte back whole
         Assert.Equal((204, 191, 179), ((int)MathF.Round(wall.Color!.Value.X * 255), (int)MathF.Round(wall.Color.Value.Y * 255), (int)MathF.Round(wall.Color.Value.Z * 255)));

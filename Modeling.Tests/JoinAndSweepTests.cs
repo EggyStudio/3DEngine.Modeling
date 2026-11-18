@@ -150,12 +150,14 @@ public sealed class JoinAndSweepTests
         Assert.Equal(8, Info(mesh).Volume, Close);
         Assert.Equal(new Bounds(new Vector3(-1, 0, 0), new Vector3(1, 2, 2)), Info(mesh).Bounds);
 
-        // A face in the plane is not copied, so a half left closed there keeps that face inside.
+        // A selected face in the plane would lie inside the whole and is taken away, so a half
+        // left closed there mirrored is the same whole.
         var closed = New();
         closed.Box(new Vector3(1, 2, 2));
         closed.Mirror(Vector3.UnitX);
-        Assert.Equal(11, Info(closed).FaceCount);
-        Assert.False(Info(closed).IsClosed);
+        Assert.Equal((12, 20, 10), Counts(closed));
+        Assert.True(Info(closed).IsClosed);
+        Assert.Equal(8, Info(closed).Volume, Close);
     }
 
     [Fact]
@@ -202,6 +204,23 @@ public sealed class JoinAndSweepTests
         Assert.Equal(new Bounds(new Vector3(-2f / 3), new Vector3(2f / 3)), Info(mesh).Bounds);
         Assert.Equal(64f / 27, Info(mesh).Volume, Close);
         Assert.Equal((8, 12, 6), Counts(mesh));
+    }
+
+    [Fact]
+    public void A_Smooth_Repeated_Is_That_Many_Passes_And_Its_Line_Names_The_Count()
+    {
+        var mesh = New();
+        mesh.Box(new Vector3(2), Vector3.Zero, centered: true);
+        mesh.SelectAll();
+        mesh.Smooth(0.5f, 2);
+
+        // Each pass draws the corners in to two thirds of where the pass before left them.
+        Assert.Equal(4f / 9, Info(mesh).Bounds.Max.X, Close);
+        Assert.Equal(-4f / 9, Info(mesh).Bounds.Min.Z, Close);
+        Assert.Equal("smooth 0.5 2", mesh.Recipe[^1]);
+        Assert.Equal(Info(mesh).Bounds, Info(EditMesh.FromRecipe(mesh.RecipeText)).Bounds);
+        Assert.Throws<ArgumentOutOfRangeException>(() => mesh.Smooth(0.5f, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => mesh.Smooth(0.5f, 101));
     }
 
     [Theory]

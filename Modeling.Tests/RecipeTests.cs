@@ -88,7 +88,9 @@ public sealed class RecipeTests : IDisposable
         mesh.Move(new Vector3(0, 1, 0));
         Assert.Equal(32, MeshInfo.Of(mesh).Volume, Close);
 
+        Assert.False(mesh.CanRedo);
         Assert.True(mesh.Undo());
+        Assert.True(mesh.CanRedo);
         Assert.Equal(24, MeshInfo.Of(mesh).Volume, Close);
         Assert.Equal(new[] { "box 2 3 4", "select +y" }, Lines(mesh));
         // The selection is the one the lines before left, the top.
@@ -96,6 +98,7 @@ public sealed class RecipeTests : IDisposable
 
         Assert.True(mesh.Redo());
         Assert.Equal(32, MeshInfo.Of(mesh).Volume, Close);
+        Assert.False(mesh.CanRedo);
         Assert.False(mesh.Redo());
 
         // An operation after an undo forgets what was taken back.
@@ -104,7 +107,9 @@ public sealed class RecipeTests : IDisposable
         Assert.False(mesh.Redo());
         Assert.Equal(40, MeshInfo.Of(mesh).Volume, Close);
 
+        Assert.True(mesh.CanUndo);
         while (mesh.Undo()) { }
+        Assert.False(mesh.CanUndo);
         Assert.Equal(0, MeshInfo.Of(mesh).VertexCount);
         Assert.Empty(Lines(mesh));
     }

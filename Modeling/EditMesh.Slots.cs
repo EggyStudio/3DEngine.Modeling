@@ -16,6 +16,14 @@ public sealed partial class EditMesh
     public SlotLook LookAt(int slot) => _looks[slot];
 
     /// <summary>
+    /// What a slot is drawn with, by its name, nothing given where it is the prototype material of
+    /// its name.
+    /// </summary>
+    /// <param name="slot">The slot's name, one of <see cref="Slots"/>.</param>
+    /// <exception cref="ArgumentException">The mesh has no slot of that name.</exception>
+    public SlotLook LookOf(string slot) => _looks[Existing(slot)];
+
+    /// <summary>
     /// Adds a slot no face is in yet, drawn with the prototype material of its name.
     /// </summary>
     /// <exception cref="ArgumentException">
