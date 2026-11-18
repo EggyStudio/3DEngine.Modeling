@@ -13,8 +13,16 @@ A closed half box of 1 by 2 by 2 m mirrored across x = 0, before the mend with 1
 at x = 0 left inside on four edges three faces share, and after it with 10 faces, closed and holding
 8 cubic meters, the faces drawn see-through.
 
+![](.github/assets/readings/2026-11-18-taper.webp)
+A stem of 3 m tapering from 0.3 to 0.05 m wrapped 3 round and every 0.6 m along, before its wrap
+followed its radius with its checker's cells squeezing round it, its width round over its length
+along falling from 1.011 to 0.211 a segment at a time, and after, the same stem with the ratio held
+at 1.047 the whole way and its cells growing finer toward the tip.
+
 Commits that day
 
+- `1c83492` The Tools submodule is moved to its head and the devlog is written again with each day's
+  commits.
 - `def69f0` A tube carries its picture so many times round it and so many meters along it as its
   caller states, its line naming the wrap where one is given.
 - `a45e5ff` The Tools submodule is moved to its head, the cheatsheet naming each tuple's elements.

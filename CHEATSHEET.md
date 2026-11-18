@@ -214,9 +214,10 @@ Add = 1,                                                 // What it picks is sel
 Remove = 2,                                              // What it picks is taken out of the selection, and the rest stays as it was
 
 record struct TubeWrap                                   // How a tube's texture coordinates carry a picture, how many times round it and how many meters of the tube one repeat runs along it
-TubeWrap(float Around, float Along);
+TubeWrap(float Around, float Along, bool FollowsRadius = false);
 float Around { get; init; }                              // How many times the picture goes round the tube, above zero
-float Along { get; init; }                               // How many meters along the tube one repeat of the picture runs, above zero
+float Along { get; init; }                               // How many meters along the tube one repeat of the picture runs at its first ring, above zero
+bool FollowsRadius { get; init; }                        // Whether a repeat along grows shorter as the tube narrows, in step with its radius
 
 class ModelCommands                                      // The model commands, one for each operation of an edit mesh's recipe and those that make, name, read, write, show and forget a model, run on the models of a ModelStore
 ModelCommands(ModelStore store, IModelScene scene, Func<string, Vector4>? prototypeColor = null);  // Makes the commands over a store's models and an engine's world

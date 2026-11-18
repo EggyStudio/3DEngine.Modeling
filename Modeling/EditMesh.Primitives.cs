@@ -293,7 +293,9 @@ public sealed partial class EditMesh
     /// <para>
     /// It stands where its points are, which are in the mesh's space, and its line in the recipe
     /// holds every point and radius, <c>tube SIDES X Y Z RADIUS X Y Z RADIUS</c> and on, with
-    /// <c>wrap AROUND ALONG</c> after the sides where a wrap is given.
+    /// <c>wrap AROUND ALONG</c> after the sides where a wrap is given, and <c>radius</c> after it
+    /// where
+    /// the wrap follows the radius.
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">
@@ -364,6 +366,14 @@ public sealed partial class EditMesh
         // Each side runs round its near ring and back along its far one, which faces it out, as a
         // prism's sides do, and the ends run their rings backwards and forwards.
         var (around, round) = wrap is { } density ? (density.Around, density.Along) : (1f, MathF.Tau * radii[0]);
+        // How far the coordinates run along the tube to each ring, a repeat every so many meters,
+        // or,
+        // where the wrap follows the radius, a repeat as much shorter as a segment's mean radius is
+        // than the first ring's, so its texels keep the shape they have at the base.
+        var follows = wrap is { FollowsRadius: true };
+        var vs = new float[count];
+        for (var i = 1; i < count; i++)
+            vs[i] = vs[i - 1] + (along[i] - along[i - 1]) / (round * (follows ? (radii[i - 1] + radii[i]) / 2 / radii[0] : 1f));
         for (var i = 0; i < count - 1; i++)
         {
             var near = first + i * sides;
@@ -372,7 +382,7 @@ public sealed partial class EditMesh
             {
                 var next = (side + 1) % sides;
                 var (u, uNext) = (around * side / sides, around * (side + 1) / sides);
-                var (v, vFar) = (along[i] / round, along[i + 1] / round);
+                var (v, vFar) = (vs[i], vs[i + 1]);
                 AddFace([near + side, near + next, far + next, far + side], smooth: 180f, uvs: [new(u, v), new(uNext, v), new(uNext, vFar), new(u, vFar)]);
             }
         }
@@ -387,7 +397,7 @@ public sealed partial class EditMesh
         Changed();
 
         var line = new System.Text.StringBuilder("tube ").Append(sides);
-        if (wrap is { } named) line.Append(" wrap ").Append(F(named.Around)).Append(' ').Append(F(named.Along));
+        if (wrap is { } named) line.Append(" wrap ").Append(F(named.Around)).Append(' ').Append(F(named.Along)).Append(named.FollowsRadius ? " radius" : "");
         for (var i = 0; i < count; i++) line.Append(' ').Append(V(points[i])).Append(' ').Append(F(radii[i]));
         Did(line.ToString());
     }

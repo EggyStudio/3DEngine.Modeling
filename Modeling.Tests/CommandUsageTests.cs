@@ -42,7 +42,7 @@ public sealed class CommandUsageTests : IDisposable
         ["model.arch"] = ["model.arch gate 1 0.25 0.5 8", "model.arch gate 1 0.25 0.5 8 at 0 0 4 center"],
         ["model.room"] = ["model.room hall 6 3 5 0.2", "model.room hall 6 3 5 0.2 at 0 0 0 center"],
         ["model.ramp"] = ["model.ramp slope 1 3 2", "model.ramp slope 1 3 2 at 2 0 0 center"],
-        ["model.tube"] = ["model.tube pipe 6 0 0 0 0.2 0 2 0 0.2", "model.tube pipe 6 wrap 2 0.5 0 0 0 0.2 0 2 0 0.2"],
+        ["model.tube"] = ["model.tube pipe 6 0 0 0 0.2 0 2 0 0.2", "model.tube pipe 6 wrap 2 0.5 0 0 0 0.2 0 2 0 0.2", "model.tube pipe 6 wrap 2 0.5 radius 0 0 0 0.2 0 2 0 0.1"],
         ["model.select"] =
         [
             "model.select crate all", "model.select crate none", "model.select crate invert", "model.select crate face 0 1",

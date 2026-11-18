@@ -125,4 +125,34 @@ public sealed class TubeTests
         Assert.Throws<ArgumentOutOfRangeException>(() => new EditMesh().Tube([Vector3.Zero, Vector3.UnitY], [1f, 1f], 4, new TubeWrap(0, 1)));
         Assert.Throws<ArgumentOutOfRangeException>(() => new EditMesh().Tube([Vector3.Zero, Vector3.UnitY], [1f, 1f], 4, new TubeWrap(1, -1)));
     }
+
+    [Fact]
+    public void A_Tapered_Tube_Whose_Wrap_Follows_Its_Radius_Keeps_Its_Pictures_Texels_As_At_Its_Base()
+    {
+        // A stem of 3 m from 0.3 m to 0.05 m, its picture 3 times round and every 0.6 m along at
+        // its base, in twelve segments.
+        var points = Enumerable.Range(0, 13).Select(i => new Vector3(0, 3f * i / 12, 0)).ToArray();
+        var radii = Enumerable.Range(0, 13).Select(i => 0.3f - 0.25f * i / 12).ToArray();
+        var mesh = new EditMesh();
+        mesh.Tube(points, radii, 24, new TubeWrap(3, 0.6f, FollowsRadius: true));
+
+        // Each segment's repeat round, its mean ring's circumference over the count, over its
+        // repeat along, its length over how far its coordinates run along it.
+        var ratios = Enumerable.Range(0, 12).Select(segment =>
+        {
+            var uvs = mesh.UvsOf(segment * 24);
+            var round = MathF.Tau * (radii[segment] + radii[segment + 1]) / 2 / 3;
+            var along = (points[segment + 1] - points[segment]).Length() / (uvs[2].Y - uvs[1].Y);
+            return round / along;
+        }).ToArray();
+        Assert.All(ratios, ratio => Assert.Equal(ratios[0], ratio, 1e-4f));
+
+        // Its line names the radius and reads back, and a wrap that does not follow it keeps its
+        // line.
+        var line = Assert.Single(mesh.Recipe);
+        Assert.StartsWith("tube 24 wrap 3 0.6 radius ", line);
+        var again = new EditMesh();
+        again.Run(line);
+        Assert.Equal(mesh.UvsOf(11 * 24), again.UvsOf(11 * 24));
+    }
 }

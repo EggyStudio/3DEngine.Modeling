@@ -576,7 +576,7 @@ public sealed partial class EditMesh
         private void Tube(EditMesh mesh)
         {
             var sides = Count();
-            TubeWrap? wrap = Optional("wrap") ? new TubeWrap(Number(), Number()) : null;
+            TubeWrap? wrap = Optional("wrap") ? new TubeWrap(Number(), Number(), Optional("radius")) : null;
             var points = new List<Vector3>();
             var radii = new List<float>();
             while (_at < words.Length)

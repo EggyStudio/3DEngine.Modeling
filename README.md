@@ -246,7 +246,7 @@ The operations and their lines are these.
 - `arch <radius> <thickness> <depth> <sides> [at <x y z>] [center]`, adds an arch.
 - `room <x y z> <thickness> [at <x y z>] [center]`, adds a hollow room.
 - `ramp <rise> <run> <width> [at <x y z>] [center]`, adds a ramp rising along Z.
-- `tube <sides> [wrap <around> <along>] (<x y z radius>)...`, adds a tube along a chain of points, round about each by its radius.
+- `tube <sides> [wrap <around> <along> [radius]] (<x y z radius>)...`, adds a tube along a chain of points, round about each by its radius.
 - `select (all | none | invert | [(add | remove)] (face (<face>)... | edge (<a b>)... | <side> | box <x0 y0 z0 x1 y1 z1> | slot <slot>))`, selects faces, edges or vertices by what they are or where they lie.
 - `move <x y z>`, moves the selection.
 - `rotate (x | y | z | <ax ay az>) <degrees> [at <x y z>]`, turns the selection.
@@ -283,6 +283,13 @@ The operations and their lines are these.
 - `epsilon <distance>`, sets how near a point is to a plane to lie in it.
 - `uv (planar (<side> | <x y z>) | box | cylinder (x | y | z | <ax ay az>) [at <x y z>] | sphere [at <x y z>] | move <u v> | scale <s> [<t>] [each] | rotate <degrees> [each] | density <pixels> [<width>] | reset)`, shapes the selected faces' texture coordinates.
 - `slot (add <slot> | remove <slot> | rename <slot> <new> | color <slot> <r g b> [<a>] | (texture | normal-map | occlusion-map | metallic-roughness-map | emissive-map) <slot> (<path> | none) | emissive <slot> <r g b> | (metallic | roughness) <slot> <value>)`, changes a material slot.
+
+A branch's tube meets its parent with its own wrap, and a caller keeps the picture's scale across the
+joint by giving the branch the whole count round nearest the parent's count times the branch's
+radius over the parent's there, and a repeat along of the branch's circumference over that count,
+so the branch's base holds square texels and a wrap that follows the radius keeps them so. Whole
+counts leave the branch's repeat round off from the parent's by what rounding the count takes, 1.33
+times for a branch of 0.1 m wrapped once on a parent of 0.225 m wrapped three times.
 
 ## Building and testing
 

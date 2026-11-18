@@ -475,3 +475,16 @@ moved from `4e922ea` by 2 commits, that no fact is new or changed, that CHEATSHE
 again the same as it stood and DEVLOG.md again by the new pin's devlog.py. The devlog carries each
 day's commits and leaves out `d20dbc5`'s sentence, which holds the cheatsheet in two words. The
 tests pass, 175.
+
+The taper in the commit carrying this line, the first of the three items agreed after the wrap.
+Its test, every segment's repeat round over its repeat along on a stem of 3 m from 0.3 m to 0.05 m
+equal to the first's, failed before on there being no `FollowsRadius`. `TubeWrap` takes
+`FollowsRadius`, a repeat along as much shorter as a segment's mean radius is than the first
+ring's, and its line `wrap AROUND ALONG radius` names it, the default keeping the line as it was.
+Measured a segment at a time from the coordinates the module lays, the ratio falls from 1.011 to
+0.211 up that stem wrapped three times round and every 0.6 m along, and holds at 1.047 where the wrap
+follows the radius, the reading 2026-11-18-taper.webp showing both. The README says in two
+sentences how a caller picks a branch's count round and repeat along at a joint and the jump whole
+counts leave, 1.33 times for a branch of 0.1 m on a parent of 0.225 m. DEVLOG.md is written again
+with `--commits`, which AGENTS.md's row names. The tests pass, 176 where there were 175 (dotnet test
+Modeling.Tests).
