@@ -328,3 +328,14 @@ each material's look as a slot's, each face's own texture coordinates, and the s
 normals give, where the module's keeps the material's name alone. Taking it widens `ModelPart` with
 a look, texture coordinates and normals, a public shape both engines' readers fill, so it is
 proposed here as a part of its own before part 4.
+
+The cheat sheet in the commit carrying this line, as Tools' README section A module's cheat sheet
+gives it, Tools pinned at `3720852`. ModuleTests holds the fifth fact beside the four, and
+CHEATSHEET.md, written by `CHEATSHEET_WRITE=1 dotnet test Modeling.Tests` under a short opening
+written by hand, lists 10 types and 180 members. The README's top row links it beside the devlog,
+and AGENTS.md's documents table names it with its command. The first page held six members with no
+summary, ModelFolder's five that took the interface's by `inheritdoc`, which the writer does not
+follow, and SlotLook's constructor, which the compiler made; each has a summary of its own in the
+source. The four primary constructors of MeshVertex, Bounds, ModelPart and ModelFolder carry no
+comment on their lines, since the writer leaves out a summary that repeats its type's. The tests
+pass, 156 where there were 155 (dotnet test Modeling.Tests).

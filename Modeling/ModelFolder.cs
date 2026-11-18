@@ -29,7 +29,8 @@ public sealed class ModelFolder(string? root = null) : IModelFiles
         return Path.GetFullPath(root is null ? path : Path.Combine(root, path));
     }
 
-    /// <inheritdoc/>
+    /// <summary>Reads a text file below the folder whole.</summary>
+    /// <exception cref="FileNotFoundException">There is no such file.</exception>
     public string ReadText(string path)
     {
         var full = Full(path);
@@ -37,7 +38,9 @@ public sealed class ModelFolder(string? root = null) : IModelFiles
         return File.ReadAllText(full);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Writes a text file below the folder whole, its folders made, and answers its full path.
+    /// </summary>
     /// <remarks>
     /// Written under a name of its own and moved into place, without a byte order mark.
     /// </remarks>
@@ -52,7 +55,9 @@ public sealed class ModelFolder(string? root = null) : IModelFiles
         return full;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Writes a file of bytes below the folder whole, its folders made, and answers its full path.
+    /// </summary>
     /// <remarks>
     /// Written under a name of its own and moved into place.
     /// </remarks>
@@ -67,11 +72,20 @@ public sealed class ModelFolder(string? root = null) : IModelFiles
         return full;
     }
 
-    /// <inheritdoc/>
+    /// <summary>Reads a glTF file below the folder into a part for each of its materials.</summary>
+    /// <exception cref="FileNotFoundException">
+    /// There is no such file, or a buffer it names is not there.
+    /// </exception>
+    /// <exception cref="FormatException">
+    /// The file is not glTF the module's reader reads.
+    /// </exception>
     public IReadOnlyList<ModelPart> ReadModel(string path) =>
         GltfReader.Read(path, file => File.Exists(Full(file)), file => File.ReadAllBytes(Full(file)));
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// The width in pixels of a PNG or a KTX2 below the folder, from its header, or null for any
+    /// other file or none.
+    /// </summary>
     public int? ImageWidth(string path)
     {
         Span<byte> header = stackalloc byte[24];

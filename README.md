@@ -1,4 +1,4 @@
-[Devlog](DEVLOG.md)
+[Devlog](DEVLOG.md) [Cheat sheet](CHEATSHEET.md)
 
 # Modeling
 

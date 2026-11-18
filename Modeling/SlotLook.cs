@@ -21,6 +21,13 @@ namespace Modeling;
 public sealed record SlotLook
 {
     /// <summary>
+    /// Makes a look with nothing given, the prototype material of the slot's name.
+    /// </summary>
+    public SlotLook()
+    {
+    }
+
+    /// <summary>
     /// The color, as sRGB numbers from zero to one as a color picker shows them, with its alpha, or
     /// null.
     /// </summary>
