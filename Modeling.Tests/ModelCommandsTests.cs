@@ -205,4 +205,31 @@ public sealed class ModelCommandsTests : IDisposable
         Assert.True(File.Exists(_folder.File("crate.bin")));
         Assert.Equal("BAD_ARGUMENT", _commands.Run("model.export crate").Code);
     }
+
+    [Fact]
+    public void The_Readme_Says_The_Count_Of_Commands_The_Module_Holds()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(root.FullName, "Modeling.slnx"))) root = root.Parent!;
+        var readme = File.ReadAllText(Path.Combine(root.FullName, "README.md")).ReplaceLineEndings(" ");
+        var said = System.Text.RegularExpressions.Regex.Match(readme, @"`ModelCommands\.All` holds (\d+) commands, (\d+) that make,\s+name, read, write, show and forget a model and one for each of the recipe's (\d+) operations");
+        Assert.True(said.Success, "the README says how many commands ModelCommands.All holds");
+
+        // An operation's command runs its verb as a recipe's line, which the recipe reads as one of
+        // its operations, whatever it then says of the words missing.
+        var operations = _commands.All.Where(command => command.Usage.StartsWith(command.Name + " <name>", StringComparison.Ordinal)
+            && !IsOfTheStore(command.Name)).ToArray();
+        foreach (var command in operations)
+        {
+            var verb = command.Name["model.".Length..];
+            var refused = Record.Exception(() => new EditMesh().Run(verb));
+            Assert.False(refused?.Message.Contains("is not an operation") == true, $"{verb} is no operation of the recipe");
+        }
+        Assert.Equal((_commands.All.Count, _commands.All.Count - operations.Length, operations.Length),
+            (int.Parse(said.Groups[1].Value), int.Parse(said.Groups[2].Value), int.Parse(said.Groups[3].Value)));
+    }
+
+    private static bool IsOfTheStore(string name) =>
+        name is "model.new" or "model.free" or "model.list" or "model.info" or "model.recipe" or "model.undo" or "model.redo"
+            or "model.save" or "model.load" or "model.export" or "model.show";
 }

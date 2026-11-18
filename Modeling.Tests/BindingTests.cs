@@ -69,4 +69,23 @@ public sealed class BindingTests
             Assert.All(part.Vertices, vertex => Assert.Equal(1, vertex.Normal.Length(), 1e-4f));
         }
     }
+
+    [Fact]
+    public void The_Engines_Console_Takes_Every_Command_And_Its_World_Draws_What_They_Show()
+    {
+        var scene = new HostScene();
+        var console = new HostConsole(new ModelCommands(new ModelStore(Files()), scene));
+        Assert.Contains(console.Help, line => line.StartsWith("model.box <name> <x y z>", StringComparison.Ordinal));
+
+        Assert.Equal("hall: 8 vertices, 12 edges, 6 faces, 6 faces and 8 vertices selected", console.Run("model.box hall 10 3 10"));
+        Assert.Equal("showing hall at (0, 0, 0)", console.Run("model.show hall"));
+        // a model shown is drawn once, and again after an edit alone
+        Assert.Equal(0, scene.Draw());
+        console.Run("model.join hall models/pillar.model");
+        Assert.Equal((1, 0), (scene.Draw(), scene.Draw()));
+
+        Assert.StartsWith("NO_SUCH_MODEL ", console.Run("model.extrude shed 1"));
+        Assert.Equal("forgot hall", console.Run("model.free hall"));
+        Assert.Empty(scene.Shown);
+    }
 }

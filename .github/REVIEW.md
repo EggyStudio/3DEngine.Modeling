@@ -409,3 +409,13 @@ from its slot's texture and an export through the store's files. A line a comman
 model, and the modifier's refusal names `add` and `boolean`. The README's table names the six types
 and CHEATSHEET.md is written again. The tests pass, 168 where there were 159 (dotnet test
 Modeling.Tests).
+
+Item 3's fourth part, its second commit in the commit carrying this line. The README's section
+Binding it in your engine names `IModelScene` after `IModelFiles`, says how an engine's console
+takes `ModelCommands.All`, gives the line's rule and the usage's grammar, and says the count of
+commands by what the module holds, 57, 11 of the store and one for each of the recipe's 46
+operations, which ModelCommandsTests holds to `ModelCommands.All` and to the recipe's operations.
+The host gains a scene that draws a shown model again as its version moves and a console that takes
+every command by its name and usage, which the binding block shows and BindingTests runs. With it
+item 3 holds its four parts and the import's. The tests pass, 170 where there were 168 (dotnet test
+Modeling.Tests).

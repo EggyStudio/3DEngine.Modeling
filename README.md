@@ -44,7 +44,7 @@ this repository does not have.
 The module shapes a mesh and gives out its data, and an engine draws it, collides with it and loads
 its materials. Its assembly is `3DEngine.Modeling`, and its types stand in the namespace `Modeling`.
 It opens no window and no graphics device, reads and writes no file but through an interface, and
-declares one interface for what it needs of an engine.
+declares two interfaces for what it needs of an engine.
 
 The library takes the Materials module, whose `MaterialDescription` an imported model's materials
 are read as. A Materials checkout beside this one is built where it stands, so a program that takes
@@ -54,6 +54,7 @@ stands beside it.
 | Interface | What the engine answers |
 |---|---|
 | `IModelFiles` | A text file read and written whole by its path, a recipe's, a file of bytes written whole, a glTF file's and its buffer's, a model file's meshes as triangles placed by the file's nodes, each a `ModelPart`, and an image's width in pixels, which every file a mesh's recipe names is read through |
+| `IModelScene` | Drawing a model the commands show at a point in meters, drawing it again as its mesh's `Version` moves, and taking away what draws a model they forget |
 
 A mesh is made with the engine's files, `new EditMesh(files)`, or read with them by
 `EditMesh.Load` or `EditMesh.FromRecipe`, and every mesh a join, a boolean or a modifier makes inside
@@ -79,8 +80,23 @@ An engine with Z up or left-handed axes turns the positions and normals it is gi
 takes clockwise triangles as their front takes each triangle's corners in the other order. A recipe's
 file starts with `model 1` and ends in `.model`.
 
+An engine's console takes the model commands from `ModelCommands`, made over a `ModelStore` of
+the engine's files and the engine's `IModelScene`, by registering every `ModelCommand` of
+`ModelCommands.All` under its name, its summary and its usage, and running a line with
+`ModelCommand.Run` or `ModelCommands.Run`. `ModelCommands.All` holds 57 commands, 11 that make,
+name, read, write, show and forget a model and one for each of the recipe's 46 operations, each
+answering a `CommandAnswer` whose `Code` a console that names its failures takes as it is. A
+program names its own meshes in the store with `ModelStore.Name`, so they answer to the commands.
+
+A line is a command's name and then its words, split at spaces and tabs, with no quoting, since
+every name, path and number a command takes is one word, and a number is read in the invariant
+culture, a point before its fraction. A usage is the command's name and its words, a word standing
+for itself, `<x y z>` taking a word for each name in it, `[...]` left out or not, `(a | b)` taking
+one of what it holds, and `...` after a part taking it once or more.
+
 The smallest binding keeps its files in memory, builds a mesh into a mesh of its own for each slot,
-and copies each slot's look into its material.
+copies each slot's look into its material, draws what the commands show and takes every command
+into its console.
 
 ```csharp
 using System.Numerics;
@@ -148,6 +164,53 @@ public static class HostBinding
             meshes[slot] = new HostMesh([.. vertices.Select(v => new HostVertex(v.Position, v.Normal, v.Uv))], indices, material);
         }
         return meshes;
+    }
+}
+
+// The engine's world, which draws a shown model where it stands and draws it again as its version
+// moves, and takes away what draws a forgotten one.
+public sealed class HostScene : IModelScene
+{
+    public Dictionary<string, (EditMesh Mesh, Vector3 At, int Drawn)> Shown { get; } = [];
+
+    public void Show(string name, EditMesh mesh, Vector3 at) => Shown[name] = (mesh, at, mesh.Version);
+
+    public void Forget(string name) => Shown.Remove(name);
+
+    // A frame, which builds a shown model again where its mesh changed since it was drawn.
+    public int Draw()
+    {
+        var built = 0;
+        foreach (var (name, (mesh, at, drawn)) in Shown.ToArray())
+        {
+            if (mesh.Version == drawn) continue;
+            HostBinding.Build(mesh);
+            Shown[name] = (mesh, at, mesh.Version);
+            built++;
+        }
+        return built;
+    }
+}
+
+// The engine's console, which takes every model command by its name and its usage, and answers a
+// refused line with its code.
+public sealed class HostConsole
+{
+    private readonly Dictionary<string, ModelCommand> _commands = [];
+
+    public HostConsole(ModelCommands commands)
+    {
+        foreach (var command in commands.All) _commands[command.Name] = command;
+    }
+
+    public IEnumerable<string> Help => _commands.Values.Select(command => $"{command.Usage}  {command.Summary}");
+
+    public string Run(string line)
+    {
+        var name = line.Split(' ', 2)[0];
+        if (!_commands.TryGetValue(name, out var command)) return $"NO_SUCH_COMMAND {name}";
+        var answer = command.Run(line.Length > name.Length ? line[(name.Length + 1)..] : "");
+        return answer.Done ? answer.Text : $"{answer.Code} {answer.Text}";
     }
 }
 ```

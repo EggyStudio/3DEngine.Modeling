@@ -70,4 +70,51 @@ public static class HostBinding
         return meshes;
     }
 }
+
+// The engine's world, which draws a shown model where it stands and draws it again as its version
+// moves, and takes away what draws a forgotten one.
+public sealed class HostScene : IModelScene
+{
+    public Dictionary<string, (EditMesh Mesh, Vector3 At, int Drawn)> Shown { get; } = [];
+
+    public void Show(string name, EditMesh mesh, Vector3 at) => Shown[name] = (mesh, at, mesh.Version);
+
+    public void Forget(string name) => Shown.Remove(name);
+
+    // A frame, which builds a shown model again where its mesh changed since it was drawn.
+    public int Draw()
+    {
+        var built = 0;
+        foreach (var (name, (mesh, at, drawn)) in Shown.ToArray())
+        {
+            if (mesh.Version == drawn) continue;
+            HostBinding.Build(mesh);
+            Shown[name] = (mesh, at, mesh.Version);
+            built++;
+        }
+        return built;
+    }
+}
+
+// The engine's console, which takes every model command by its name and its usage, and answers a
+// refused line with its code.
+public sealed class HostConsole
+{
+    private readonly Dictionary<string, ModelCommand> _commands = [];
+
+    public HostConsole(ModelCommands commands)
+    {
+        foreach (var command in commands.All) _commands[command.Name] = command;
+    }
+
+    public IEnumerable<string> Help => _commands.Values.Select(command => $"{command.Usage}  {command.Summary}");
+
+    public string Run(string line)
+    {
+        var name = line.Split(' ', 2)[0];
+        if (!_commands.TryGetValue(name, out var command)) return $"NO_SUCH_COMMAND {name}";
+        var answer = command.Run(line.Length > name.Length ? line[(name.Length + 1)..] : "");
+        return answer.Done ? answer.Text : $"{answer.Code} {answer.Text}";
+    }
+}
 // The end marker.
