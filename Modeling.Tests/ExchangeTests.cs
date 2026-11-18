@@ -197,6 +197,10 @@ public sealed class ExchangeTests : IDisposable
         made.UvRotate(30);
         made.Export("models/pillar.gltf");
 
+        // glTF's emission is its factor times its strength, which carries no unit.
+        var read = _folder.Files.ReadModel("models/pillar.gltf").Single(part => part.Material == "stone").Look!;
+        Assert.Equal((new Vector3(3, 1.5f, 0), Materials.EmissiveUnit.Unitless), (read.Emissive, read.EmissiveUnit));
+
         var mesh = _folder.Mesh();
         mesh.Import("models/pillar.gltf");
 

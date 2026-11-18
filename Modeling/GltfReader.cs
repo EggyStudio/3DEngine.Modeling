@@ -259,6 +259,7 @@ internal static class GltfReader
             Metallic = hasPbr && pbr.TryGetProperty("metallicFactor", out var metal) ? Math.Clamp(metal.GetSingle(), 0f, 1f) : 1f,
             Roughness = hasPbr && pbr.TryGetProperty("roughnessFactor", out var rough) ? Math.Clamp(rough.GetSingle(), 0f, 1f) : 1f,
             Emissive = new Vector3(emissive[0], emissive[1], emissive[2]) * strength,
+            EmissiveUnit = EmissiveUnit.Unitless,
             NormalScale = Factor(material, "normalTexture", "scale", 1f),
             OcclusionStrength = Factor(material, "occlusionTexture", "strength", 1f),
             AlphaMode = alpha switch { "MASK" => AlphaMode.Mask, "BLEND" => AlphaMode.Blend, _ => AlphaMode.Opaque },

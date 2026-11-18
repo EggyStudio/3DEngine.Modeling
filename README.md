@@ -68,7 +68,7 @@ What the module gives out stands on these conventions.
 | Triangles | Counterclockwise seen from the side a face faces, each face's corners its own in the build |
 | Texture coordinates | A face's corners' places in meters seen along the axis its normal is nearest until a `uv` line gives it its own, the second running down a wall, so a picture's first row is its top |
 | Angles | Degrees, a rotation counterclockwise looking back along its axis |
-| Color | A slot's color as sRGB numbers from 0 to 1 with its alpha, as a color picker shows them, and its emissive color linear, past 1 for a bright light |
+| Color | A slot's color as sRGB numbers from 0 to 1 with its alpha, as a color picker shows them, and its emissive color linear and unitless, as glTF's factor times its strength is, past 1 for a bright light, an imported material's `MaterialDescription` saying so by `EmissiveUnit.Unitless` |
 | Paths | One word with forward slashes, as a recipe line holds it, found by the engine's `IModelFiles` |
 | A plane or a center with no `at` | Through the origin, for a knife, a mirror, a spin and a modifier's mirror, so an engine whose own lines meant the selection's middle writes the point with `at` |
 

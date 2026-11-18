@@ -388,3 +388,8 @@ README opens with its link row, and both pass. `git grep -n -i "cheat sheet"` fi
 title, kept by hand, taking the one word, and CHEATSHEET.md is written again. The import's commit
 carries `[Cheatsheet]` in the link row from the start, remade with the sweep's after it. The tests
 pass, 159 where there were 157 (dotnet test Modeling.Tests).
+
+The emission's unit in the commit carrying this line, Materials pinned at `79eb411`, which holds
+`68a0a93`. The glTF reader writes a material's emission as glTF's factor times its strength with
+`EmissiveUnit.Unitless`, and the import's test reads it so, which failed on `Luminance` before the
+line was added. The README's conventions say the emission is unitless. The tests pass, 159.
