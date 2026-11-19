@@ -587,3 +587,10 @@ crossing on one lands 1.5e-4 m from the window's own corner however exactly its 
 Closing it wants a slit face cut otherwise, as convex pieces round each window or by triangles no
 thinner than the join allows. Nothing else behaves otherwise: the tests pass, 179 with the long wall
 skipped, and part 1's recipes differ from 3DEngine in the same 57.
+
+The drift, a reading in the commit carrying this line, 2026-11-19-slit-triangles.md. The wall of
+200 m's front meets its 25th cut as 9 faces, one of 120 corners reaching round the windows through
+slits, which ear clipping cuts into 186 triangles, 31 thinner than the join's 1e-4 m and the
+thinnest 1.5e-8 m across 178.6 m, triangles along a slit that the partition keeps since it skips one
+by its area alone. The smaller mend is a bound, the partition's polygons leaving out a triangle
+thinner than the boolean's epsilon.

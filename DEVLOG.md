@@ -6,6 +6,36 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-19
+
+How the wall of 200 m's front is cut into triangles as the 25th window's cut meets it, measured by
+cutting its front with the recipe's `triangulate`, which follows the rule the cut's partition takes
+its triangles by, each triangle's height over its longest side.
+
+| What | Measure |
+|---|---|
+| Front faces and their corners | 9, of 120, 23, 20, 19, 8, 5, 3, 3 and 3 |
+| Triangles ear clipping cuts them into | 186 |
+| The thinnest | 1.5e-8 m across a side of 178.6 m |
+| Thinner than 1e-4 m, the join's distance | 31 |
+| Thinner than 1e-3 m | 39 |
+| Thinner than 1e-2 m | 73 |
+
+Ear clipping cuts a face for a cut in `EditMesh.Booleans.cs` where a mesh's faces become the
+partition's polygons, and for the build, the triangulation and a solid's own faces elsewhere. The
+face of 120 corners reaches round the windows through slits of no width, so its thinnest triangles
+lie along a slit, near no area, and the partition skips a triangle by its area alone, 1e-12, which
+they pass. Of the two mends the bound is the smaller: the partition's polygons leave out a triangle
+thinner than the boolean's epsilon, one test at one line, where convex pieces round each window
+would change how the join builds every face a cut makes and the counts the tests pin.
+
+Commits that day
+
+- `f19ca21` A cut reads and stores its points in doubles so none is rounded between two cuts, the
+  long wall with many windows still open at its far corners.
+- `e2753b6` An edit mesh keeps its points in doubles behind the floats its operations read and
+  write, ready for a cut to keep its own as they are.
+
 ## 2026-11-18
 
 ![](.github/assets/readings/2026-11-18-item-3-mirror.webp)
@@ -49,6 +79,10 @@ skipped wall of 200 m turned on where it then passes.
 
 Commits that day
 
+- `c60e2c7` An edit mesh's points are read and written through a collection of their own, so what
+  they are kept in changes in one place.
+- `34dc413` A reading counts where an edit mesh holds its points as floats between two cuts, the
+  first step toward keeping them in doubles.
 - `94bcf46` The build gives each corner's tangent and hand from its texture coordinates, for an
   engine that draws normal maps with a tangent buffer.
 - `8347e31` A test holds a long wall with many windows closed, skipped with its reason, since a
