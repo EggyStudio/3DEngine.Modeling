@@ -594,3 +594,11 @@ slits, which ear clipping cuts into 186 triangles, 31 thinner than the join's 1e
 thinnest 1.5e-8 m across 178.6 m, triangles along a slit that the partition keeps since it skips one
 by its area alone. The smaller mend is a bound, the partition's polygons leaving out a triangle
 thinner than the boolean's epsilon.
+
+The drift, the bound, in the commit carrying this line, and the long wall still open. A cut's
+partition leaves out a triangle thinner than the boolean's epsilon, its area over its longest side,
+the triangles along a slit, which takes the wall of 200 m with 25 windows from 7 open edges to 3,
+so its test stays skipped with that count; a bound of ten epsilons left 6 and is not kept. Part 1's
+recipes differ from 3DEngine in 59 where they did in 57, the 2 more one open under 3DEngine and one
+closed under both with the same volume and faces, its points moved. The tests pass, 179 with the
+long wall skipped.

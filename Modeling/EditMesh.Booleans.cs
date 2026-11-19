@@ -269,7 +269,11 @@ public sealed partial class EditMesh
                 // The corners as the mesh keeps them, in doubles, the floats choosing the triangles
                 // alone.
                 var (a, b, c) = (mesh._positions.Exact(face.Corners[triangles[t]]), mesh._positions.Exact(face.Corners[triangles[t + 1]]), mesh._positions.Exact(face.Corners[triangles[t + 2]]));
-                if (Csg.Point.Cross(b - a, c - a).Length < 1e-12) continue;
+                // A triangle thinner than the epsilon, its area over its longest side, lies along a
+                // slit a face reaches round an opening by, and is left out, since a crossing on it
+                // lands off the opening's own corner by more than the join closes.
+                var longest = Math.Max((b - a).Length, Math.Max((c - b).Length, (a - c).Length));
+                if (Csg.Point.Cross(b - a, c - a).Length < 1e-12 || Csg.Point.Cross(b - a, c - a).Length / longest < mesh.BooleanEpsilon) continue;
                 yield return new Csg.Polygon([a, b, c], source);
             }
         }
