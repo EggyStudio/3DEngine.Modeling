@@ -602,3 +602,11 @@ so its test stays skipped with that count; a bound of ten epsilons left 6 and is
 recipes differ from 3DEngine in 59 where they did in 57, the 2 more one open under 3DEngine and one
 closed under both with the same volume and faces, its points moved. The tests pass, 179 with the
 long wall skipped.
+
+The repositories' new names, in the commit carrying this line. Tools is pinned at `13ca744` by
+`pin.py`, which printed that Tools moved from `1e1ec63` by 15 commits, that one fact changed,
+`No_Tracked_Text_Names_An_Engine` by `70543a2`, its form the one ModuleTests holds, and that
+CHEATSHEET.md and DEVLOG.md were written again. `.gitmodules` gives the submodules as
+`3DEngine.Tools` and `3DEngine.Materials`, synced, and the README's link row and its submodule line
+name `3DEngine.Modeling`, so no address of a module's repository by its old name stands outside the
+review's files. The tests pass, 179 with the long wall skipped.

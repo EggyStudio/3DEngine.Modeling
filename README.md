@@ -1,4 +1,4 @@
-[Devlog](https://github.com/EggyStudio/Modeling/blob/main/DEVLOG.md) [Cheatsheet](https://github.com/EggyStudio/Modeling/blob/main/CHEATSHEET.md)
+[Devlog](https://github.com/EggyStudio/3DEngine.Modeling/blob/main/DEVLOG.md) [Cheatsheet](https://github.com/EggyStudio/3DEngine.Modeling/blob/main/CHEATSHEET.md)
 
 # Modeling
 
@@ -27,7 +27,7 @@ An engine adds the repository as a git submodule under `modules/` and references
 from a project one folder below the engine's root.
 
 ```bash
-git submodule add https://github.com/EggyStudio/Modeling.git modules/Modeling
+git submodule add https://github.com/EggyStudio/3DEngine.Modeling.git modules/Modeling
 ```
 
 ```xml

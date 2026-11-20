@@ -31,6 +31,10 @@ would change how the join builds every face a cut makes and the counts the tests
 
 Commits that day
 
+- `e007942` A cut leaves out the triangles thinner than its epsilon that a face cut along a slit
+  gives, so a long wall with many windows keeps 3 open edges where it kept 7.
+- `36db216` A reading measures how thin the triangles a long wall's slit front is cut into are, the
+  drift's cause.
 - `f19ca21` A cut reads and stores its points in doubles so none is rounded between two cuts, the
   long wall with many windows still open at its far corners.
 - `e2753b6` An edit mesh keeps its points in doubles behind the floats its operations read and
