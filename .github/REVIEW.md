@@ -524,8 +524,8 @@ taper after it. In order next: the drift above, then tangents from the build
 failing test first on a box's faces and a mirrored copy), then undo's snapshots only if an undo on a
 long recipe is still slow once the cuts no longer fragment. A fresh session reads AGENTS.md, then
 this file's head, Decisions 9 to 11 and the Replies from the import's on, then NORM.md's N 4.9 to
-N 4.11, N 7.7 and N 7.9. It builds under the GPU lock with `flock -s /run/user/1000/gpu.lock`, node
-reuse and the compiler server off, and commits after `python3 -I modules/Tools/scripts/commitcheck.py
+N 4.11, N 7.7 and N 7.9. It builds and tests with node reuse and the compiler server off, taking no lock,
+since a build or test that opens no device needs none (N 7.9's gate is `modules/Tools/scripts/gpu.py`), and commits after `python3 -I modules/Tools/scripts/commitcheck.py
 . --staged --message=<file>`. Tools is pinned by its `pin.py`, the devlog written with `--commits`.
 
 The drift, one bounded attempt, an open reading in the commit carrying this line. Its test, the
@@ -554,7 +554,7 @@ tangents, and undo's snapshots are dropped while an undo is quick once the cuts 
 Open: the long wall's drift, its test skipped by name with the reading above it, which wants the
 mesh's points in doubles across cuts or slit faces cut otherwise. No item is proposed. A fresh
 session reads AGENTS.md, this file's head, Decisions 9 to 11 and the Replies from the import's on,
-then NORM.md's N 4.9 to N 4.11, N 7.7 and N 7.9, builds under the GPU lock, and commits after
+then NORM.md's N 4.9 to N 4.11, N 7.7 and N 7.9, builds and tests without the lock, which a run that opens no device does not need, and commits after
 `python3 -I modules/Tools/scripts/commitcheck.py . --staged --message=<file>`.
 
 The drift across cuts, its first step, a reading in the commit carrying this line,
@@ -610,3 +610,9 @@ CHEATSHEET.md and DEVLOG.md were written again. `.gitmodules` gives the submodul
 `3DEngine.Tools` and `3DEngine.Materials`, synced, and the README's link row and its submodule line
 name `3DEngine.Modeling`, so no address of a module's repository by its old name stands outside the
 review's files. The tests pass, 179 with the long wall skipped.
+
+The pin at `be1b6ab`, in the commit carrying this line, with NORM.md's N 7.9 sentence that
+`modules/Tools/scripts/gpu.py` is the one gate for the GPU lock. `pin.py` named no changed fact and
+wrote the cheatsheet the same as it stood. This module's build and tests open no device, so they
+take no lock and run as `dotnet build` and `dotnet test` with node reuse and the compiler server
+off, and the two sentences of the handoff that named `flock` and the lock now say so.
