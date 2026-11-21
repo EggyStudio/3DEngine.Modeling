@@ -1,4 +1,5 @@
 using System.Numerics;
+using Materials;
 
 namespace Modeling;
 
@@ -7,21 +8,39 @@ namespace Modeling;
 // shape is, so a saved model is drawn as it was left.
 public sealed partial class EditMesh
 {
-    private readonly List<SlotLook> _looks = [new()];
+    private readonly List<SlotMaterial> _looks = [SlotMaterial.Blank()];
 
     /// <summary>
-    /// What a slot is drawn with, by its index in <see cref="Slots"/>, nothing given where it is
-    /// the prototype material of its name.
+    /// What a slot is drawn with, by its index in <see cref="Slots"/>, as the Materials module
+    /// describes a surface, its color in linear light and its pictures by the roles they hold.
     /// </summary>
-    public SlotLook LookAt(int slot) => _looks[slot];
+    /// <remarks>
+    /// A field no recipe gave holds the description's default, so <see cref="GivenAt"/> says which
+    /// were given, and a slot that gave none is the prototype material of its name.
+    /// </remarks>
+    /// <param name="slot">The slot's index in <see cref="Slots"/>.</param>
+    public MaterialDescription LookAt(int slot) => _looks[slot].Description;
 
     /// <summary>
-    /// What a slot is drawn with, by its name, nothing given where it is the prototype material of
-    /// its name.
+    /// What a slot is drawn with, by its name, as <see cref="LookAt"/> holds it.
     /// </summary>
     /// <param name="slot">The slot's name, one of <see cref="Slots"/>.</param>
     /// <exception cref="ArgumentException">The mesh has no slot of that name.</exception>
-    public SlotLook LookOf(string slot) => _looks[Existing(slot)];
+    public MaterialDescription LookOf(string slot) => _looks[Existing(slot)].Description;
+
+    /// <summary>
+    /// The fields a recipe gave a slot, by its index in <see cref="Slots"/>, none where it is the
+    /// prototype material of its name.
+    /// </summary>
+    /// <param name="slot">The slot's index in <see cref="Slots"/>.</param>
+    public SlotGiven GivenAt(int slot) => _looks[slot].Given;
+
+    /// <summary>The fields a recipe gave a slot, by its name.</summary>
+    /// <param name="slot">The slot's name, one of <see cref="Slots"/>.</param>
+    /// <exception cref="ArgumentException">The mesh has no slot of that name.</exception>
+    public SlotGiven GivenOf(string slot) => _looks[Existing(slot)].Given;
+
+    internal string GivenWords(int slot) => _looks[slot].Words();
 
     /// <summary>
     /// Adds a slot no face is in yet, drawn with the prototype material of its name.
@@ -91,7 +110,7 @@ public sealed partial class EditMesh
     public void SlotColor(string slot, Vector4 color)
     {
         foreach (var part in (ReadOnlySpan<float>)[color.X, color.Y, color.Z, color.W]) Fraction(part, "A color's parts run from zero to one.");
-        Look(slot, look => look with { Color = color },
+        Look(slot, look => look.WithColor(color),
             $"slot color {slot} {F(color.X)} {F(color.Y)} {F(color.Z)}{(color.W == 1f ? "" : " " + F(color.W))}");
     }
 
@@ -107,11 +126,11 @@ public sealed partial class EditMesh
         var file = MapPath(path);
         var (word, change) = map switch
         {
-            MaterialMap.Albedo => ("texture", (Func<SlotLook, SlotLook>)(look => look with { Texture = file })),
-            MaterialMap.Normal => ("normal-map", look => look with { NormalMap = file }),
-            MaterialMap.Occlusion => ("occlusion-map", look => look with { OcclusionMap = file }),
-            MaterialMap.MetallicRoughness => ("metallic-roughness-map", look => look with { MetallicRoughnessMap = file }),
-            MaterialMap.Emission => ("emissive-map", look => look with { EmissiveMap = file }),
+            MaterialMap.Albedo => ("texture", (Func<SlotMaterial, SlotMaterial>)(look => look.WithPicture(SlotGiven.Texture, PictureLayout.Color, file))),
+            MaterialMap.Normal => ("normal-map", look => look.WithPicture(SlotGiven.NormalMap, PictureLayout.Normal, file)),
+            MaterialMap.Occlusion => ("occlusion-map", look => look.WithPicture(SlotGiven.OcclusionMap, PictureLayout.Occlusion, file)),
+            MaterialMap.MetallicRoughness => ("metallic-roughness-map", look => look.WithPicture(SlotGiven.MetallicRoughnessMap, PictureLayout.MetallicRoughness, file)),
+            MaterialMap.Emission => ("emissive-map", look => look.WithPicture(SlotGiven.EmissiveMap, PictureLayout.Emissive, file)),
             _ => throw new ArgumentException($"A slot has no {map} map, which is no member of MaterialMap.", nameof(map)),
         };
         Look(slot, change, $"slot {word} {slot} {file ?? "none"}");
@@ -127,7 +146,7 @@ public sealed partial class EditMesh
     {
         foreach (var part in (ReadOnlySpan<float>)[color.X, color.Y, color.Z])
             if (!(part >= 0f) || !float.IsFinite(part)) throw new ArgumentOutOfRangeException(nameof(color), part, "A light's parts are finite numbers, zero or more.");
-        Look(slot, look => look with { Emissive = color }, $"slot emissive {slot} {V(color)}");
+        Look(slot, look => look.WithEmissive(color), $"slot emissive {slot} {V(color)}");
     }
 
     /// <summary>Sets how metal a slot's faces are, from zero to one.</summary>
@@ -135,7 +154,7 @@ public sealed partial class EditMesh
     public void SlotMetallic(string slot, float metallic)
     {
         Fraction(metallic, "Metalness runs from zero to one.");
-        Look(slot, look => look with { Metallic = metallic }, $"slot metallic {slot} {F(metallic)}");
+        Look(slot, look => look.WithMetallic(metallic), $"slot metallic {slot} {F(metallic)}");
     }
 
     /// <summary>Sets how rough a slot's faces are, from zero, a mirror, to one.</summary>
@@ -143,7 +162,7 @@ public sealed partial class EditMesh
     public void SlotRoughness(string slot, float roughness)
     {
         Fraction(roughness, "Roughness runs from zero to one.");
-        Look(slot, look => look with { Roughness = roughness }, $"slot roughness {slot} {F(roughness)}");
+        Look(slot, look => look.WithRoughness(roughness), $"slot roughness {slot} {F(roughness)}");
     }
 
     /// <summary>
@@ -164,7 +183,7 @@ public sealed partial class EditMesh
     /// Changes a slot's look, the slot made where the mesh has none of its name, and writes the
     /// line.
     /// </summary>
-    private void Look(string slot, Func<SlotLook, SlotLook> change, string line)
+    private void Look(string slot, Func<SlotMaterial, SlotMaterial> change, string line)
     {
         OneWord(slot, nameof(slot));
         var index = SlotIndex(slot);
@@ -181,12 +200,12 @@ public sealed partial class EditMesh
     /// A slot found keeps its own look, so a model joined or cut with another is drawn in this
     /// mesh's look for a slot both have, and in the other's for a slot this one lacks.
     /// </remarks>
-    private int SlotIndex(string slot, SlotLook? look = null)
+    private int SlotIndex(string slot, SlotMaterial? look = null)
     {
         var index = _slots.IndexOf(slot);
         if (index >= 0) return index;
         _slots.Add(slot);
-        _looks.Add(look ?? new SlotLook());
+        _looks.Add(look ?? SlotMaterial.Blank());
         return _slots.Count - 1;
     }
 
@@ -199,7 +218,7 @@ public sealed partial class EditMesh
         _slots.RemoveRange(1, _slots.Count - 1);
         _slots[0] = DefaultSlot;
         _looks.RemoveRange(1, _looks.Count - 1);
-        _looks[0] = new SlotLook();
+        _looks[0] = SlotMaterial.Blank();
     }
 
     private int Existing(string slot)

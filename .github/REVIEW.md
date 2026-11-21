@@ -616,3 +616,19 @@ The pin at `be1b6ab`, in the commit carrying this line, with NORM.md's N 7.9 sen
 wrote the cheatsheet the same as it stood. This module's build and tests open no device, so they
 take no lock and run as `dotnet build` and `dotnet test` with node reuse and the compiler server
 off, and the two sentences of the handoff that named `flock` and the lock now say so.
+
+`SlotLook` removed, in the commit carrying this line, with the Materials submodule at its head,
+`8760ae8`. A slot holds a Materials `MaterialDescription` and a `SlotGiven`, the flags of the
+fields a recipe gave, so `slot color` stays apart from the default white and the recipe's words
+and their round trips read as they did. An imported material is held whole, so the seven values
+the old type lost, the reflectance, the normal scale, the occlusion strength, the diffuse
+transmission, the alpha mode and cutoff, the double-sided flag and the emissive unit, are read back
+as the file gave them, the test for it written first and failing on them. A color is held as
+linear light, as the description holds it, and the sRGB form a recipe writes is a function of it,
+rounded to five places, not a second value. What a binding that used `SlotLook` writes in its
+place, from `var look = mesh.LookAt(slot)`: `look.Color ?? Vector4.One` is `look.BaseColor`, now
+linear light where it was the sRGB numbers the recipe gave, `look.Texture` is
+`look.PictureOf(PictureRole.BaseColor)?.Picture.Path`, `look.NormalMap` is the same with
+`PictureRole.NormalX`, `look.Emissive ?? Vector3.Zero` is `look.Emissive`, and
+`look.IsPrototype` is `mesh.GivenAt(slot) == SlotGiven.None`, where the engine draws the prototype
+material of the slot's name. The tests pass, 180 with the long wall skipped.

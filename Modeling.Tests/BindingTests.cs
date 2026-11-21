@@ -57,7 +57,7 @@ public sealed class BindingTests
         var built = HostBinding.Build(mesh);
         Assert.Equal(new[] { "default", "stone" }, built.Select(part => part.Material.Name));
         Assert.Equal((Vector4.One, "textures/bricks.png"), (built[0].Material.Color, built[0].Material.Albedo));
-        Assert.Equal((new Vector4(0.5f, 0.5f, 0.5f, 1), new Vector3(2, 1, 0)), (built[1].Material.Color, built[1].Material.Emissive));
+        Assert.Equal((new Vector4(0.21404114f, 0.21404114f, 0.21404114f, 1), new Vector3(2, 1, 0)), (built[1].Material.Color, built[1].Material.Emissive));
 
         // A box's six faces of four corners each, two triangles a face, and the pillar's eight
         // sides and two ends of eight corners.

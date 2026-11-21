@@ -1,4 +1,5 @@
 using System.Numerics;
+using Materials;
 using Xunit;
 
 namespace Modeling.Tests;
@@ -108,9 +109,14 @@ public sealed class SlotTests : IDisposable
         var wall = again.LookAt(1);
         Assert.Same(wall, again.LookOf("wall"));
         Assert.Throws<ArgumentException>(() => again.LookOf("glass"));
-        Assert.Equal((new Vector4(0.8f, 0.749f, 0.702f, 1), Bricks, (string?)null), (wall.Color, wall.Texture, wall.NormalMap));
-        // three places bring a byte back whole
-        Assert.Equal((204, 191, 179), ((int)MathF.Round(wall.Color!.Value.X * 255), (int)MathF.Round(wall.Color.Value.Y * 255), (int)MathF.Round(wall.Color.Value.Z * 255)));
+        Assert.Equal((Bricks, (string?)null), (wall.PictureOf(PictureRole.BaseColor)?.Picture.Path, wall.PictureOf(PictureRole.NormalX)?.Picture.Path));
+        Assert.Equal(SlotGiven.Color | SlotGiven.Texture, again.GivenOf("wall"));
+        Assert.Equal(SlotGiven.None, again.GivenAt(0));
+
+        // a recipe's color is sRGB's numbers, which the description holds as linear light, and its
+        // three bytes come back whole through the curve
+        static int Byte(float linear) => (int)MathF.Round((linear <= 0.0031308f ? linear * 12.92f : 1.055f * MathF.Pow(linear, 1f / 2.4f) - 0.055f) * 255);
+        Assert.Equal((204, 191, 179), (Byte(wall.BaseColor.X), Byte(wall.BaseColor.Y), Byte(wall.BaseColor.Z)));
 
         var height = () => mesh.SlotMap("wall", (MaterialMap)99, Bricks);
         Assert.ThrowsAny<ArgumentException>(height);

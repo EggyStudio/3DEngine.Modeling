@@ -47,7 +47,7 @@ public sealed partial class EditMesh
             var slot = part.Material is { } named ? SlotIndex(SlotName(named)) : 0;
             // A slot that gives nothing takes the material's look, so a model imported into a new
             // mesh keeps the look its file gave, and a slot given a look of its own keeps it.
-            if (part.Look is { } look && _looks[slot].IsPrototype) _looks[slot] = SlotLookOf(look);
+            if (part.Look is { } look && _looks[slot].Given == SlotGiven.None) _looks[slot] = SlotMaterial.Of(look);
             var vertices = part.Positions.Select(Weld).ToArray();
             for (int i = 0; i + 2 < part.Indices.Count; i += 3)
             {
@@ -116,29 +116,6 @@ public sealed partial class EditMesh
     }
 
     /// <summary>
-    /// A slot's look from a material's, its color from linear back to sRGB to five places, as a
-    /// color picker gives it, its factors, its emission and the paths of its pictures by their
-    /// roles.
-    /// </summary>
-    private static SlotLook SlotLookOf(Materials.MaterialDescription look)
-    {
-        static float Encoded(float value) => MathF.Round(Srgb.Encode(value), 5);
-        string? Path(Materials.PictureRole role) => look.PictureOf(role)?.Picture.Path;
-        return new SlotLook
-        {
-            Color = look.BaseColor == Vector4.One ? null : new Vector4(Encoded(look.BaseColor.X), Encoded(look.BaseColor.Y), Encoded(look.BaseColor.Z), MathF.Round(look.BaseColor.W, 5)),
-            Texture = Path(Materials.PictureRole.BaseColor),
-            NormalMap = Path(Materials.PictureRole.NormalX),
-            OcclusionMap = Path(Materials.PictureRole.Occlusion),
-            MetallicRoughnessMap = Path(Materials.PictureRole.Roughness) ?? Path(Materials.PictureRole.Metallic),
-            EmissiveMap = Path(Materials.PictureRole.Emissive),
-            Metallic = look.Metallic,
-            Roughness = look.Roughness,
-            Emissive = look.Emissive == Vector3.Zero ? null : look.Emissive,
-        };
-    }
-
-    /// <summary>
     /// Writes the mesh with its modifiers applied as a glTF 2.0 file through the mesh's files, a
     /// primitive and a material for each slot a face is in, and answers the file's full path.
     /// </summary>
@@ -182,12 +159,14 @@ public sealed partial class EditMesh
     private GltfWriter.Primitive Primitive(int slot, MeshVertex[] vertices, uint[] indices, Func<string, Vector4>? prototypeColor)
     {
         var (name, look) = (_slots[slot], _looks[slot]);
-        var srgb = look.Color ?? (look.Texture is null && prototypeColor is not null ? prototypeColor(name) : Vector4.One);
-        return new GltfWriter.Primitive(name, new Vector4(Srgb.Decode(srgb.X), Srgb.Decode(srgb.Y), Srgb.Decode(srgb.Z), srgb.W), vertices, indices)
+        var (description, given) = (look.Description, look.Given);
+        var color = given.HasFlag(SlotGiven.Color) ? description.BaseColor
+            : look.Texture is null && prototypeColor is not null ? Linear(prototypeColor(name)) : Vector4.One;
+        return new GltfWriter.Primitive(name, color, vertices, indices)
         {
-            Metallic = look.Metallic ?? 0,
-            Roughness = look.Roughness ?? 0.85f,
-            Emissive = look.Emissive ?? Vector3.Zero,
+            Metallic = given.HasFlag(SlotGiven.Metallic) ? description.Metallic : 0,
+            Roughness = given.HasFlag(SlotGiven.Roughness) ? description.Roughness : 0.85f,
+            Emissive = given.HasFlag(SlotGiven.Emissive) ? description.Emissive : Vector3.Zero,
             Texture = look.Texture,
             NormalMap = look.NormalMap,
             OcclusionMap = look.OcclusionMap,
@@ -195,6 +174,8 @@ public sealed partial class EditMesh
             EmissiveMap = look.EmissiveMap,
         };
     }
+
+    private static Vector4 Linear(Vector4 srgb) => new(Srgb.Decode(srgb.X), Srgb.Decode(srgb.Y), Srgb.Decode(srgb.Z), srgb.W);
 
     /// <summary>
     /// A material's name as a slot's, one word, its words joined by hyphens, or the first slot's

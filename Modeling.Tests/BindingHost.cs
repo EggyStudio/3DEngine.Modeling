@@ -4,6 +4,7 @@
 
 // The README's block from here
 using System.Numerics;
+using Materials;
 using Modeling;
 
 // The engine's files, kept here in memory by their paths, which every mesh it makes reads and
@@ -64,7 +65,7 @@ public static class HostBinding
         {
             var (vertices, indices) = built[slot];
             var look = mesh.LookAt(slot);
-            var material = new HostMaterial(mesh.Slots[slot], look.Color ?? Vector4.One, look.Texture, look.NormalMap, look.Emissive ?? Vector3.Zero);
+            var material = new HostMaterial(mesh.Slots[slot], look.BaseColor, look.PictureOf(PictureRole.BaseColor)?.Picture.Path, look.PictureOf(PictureRole.NormalX)?.Picture.Path, look.Emissive);
             meshes[slot] = new HostMesh([.. vertices.Select(v => new HostVertex(v.Position, v.Normal, v.Uv))], indices, material);
         }
         return meshes;

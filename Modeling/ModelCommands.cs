@@ -178,7 +178,7 @@ public sealed class ModelCommands
             Counts(rest, mesh),
             string.Create(culture, $"bounds ({low.X}, {low.Y}, {low.Z}) to ({high.X}, {high.Y}, {high.Z})"),
             string.Create(culture, $"volume {mesh.Volume} cubic meters, {mesh.OpenEdges} open edges, {(mesh.IsClosed ? "closed" : "open")}"),
-            $"slots {string.Join(", ", mesh.Slots.Select((slot, index) => mesh.LookAt(index).IsPrototype ? slot : $"{slot} ({mesh.LookAt(index).Words()})"))}",
+            $"slots {string.Join(", ", mesh.Slots.Select((slot, index) => mesh.GivenAt(index) == SlotGiven.None ? slot : $"{slot} ({mesh.GivenWords(index)})"))}",
             string.Create(culture, $"grid {mesh.GridStep}, epsilon {mesh.BooleanEpsilon}, {mesh.Recipe.Count} lines of recipe")));
     }
 

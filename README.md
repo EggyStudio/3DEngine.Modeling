@@ -13,7 +13,7 @@ implements the interface it declares where it binds the module.
 | `EditMesh` | A polygon mesh shaped by primitives and by operations on its selection, its faces of any count kept whole, its material slots, its modifiers, and its recipe, the line each operation writes, which is its undo and its file and makes the mesh again when it is run |
 | `EditMeshBuild` | The mesh with its modifiers applied, built into the vertices and triangles of each slot, with each corner's tangent and hand for an engine that draws with a tangent buffer, each face cut by ear clipping with its own normals and texture coordinates, smoothed within its angle |
 | `MeshVertex` and `Bounds` | A built vertex, its place, normal and texture coordinates, which an engine copies into its own, and a box along the axes |
-| `SlotLook` and `MaterialMap` | What a slot is drawn with, a color, a texture and the maps of a glTF material by their files, metalness, roughness and an emissive color, which an engine loads into a material of its own |
+| `SlotGiven` and `MaterialMap` | Which fields of a slot a recipe gave, and the maps of a glTF material a recipe names by their files, the slot's own look being the Materials module's `MaterialDescription` an engine loads into a material of its own |
 | `IModelFiles`, `ModelPart` and `ModelFolder` | The files a mesh reads and writes, its recipe's, the recipes its joins name, the model files it imports as placed triangles with their normals, texture coordinates and material's look where the file holds them, its textures' widths and the glTF it is exported as, which an engine implements with its own lookup and model reader, and the files of a folder, which read glTF, for the tests and a program with no engine |
 | `SelectionMode` | Whether a selection replaces what was selected, adds to it or takes from it |
 | `TubeWrap` | How a tube's texture coordinates carry a picture, how many times round it and how many meters one repeat runs along it |
@@ -61,8 +61,8 @@ A mesh is made with the engine's files, `new EditMesh(files)`, or read with them
 `EditMesh.Load` or `EditMesh.FromRecipe`, and every mesh a join, a boolean or a modifier makes inside
 it shares them. `ModelFolder` is an `IModelFiles` over a folder, reading a model file as glTF and
 the width of a PNG or a KTX2 from its header. The binding reads what `EditMeshBuild.Slots` gives, a
-mesh a material slot of `MeshVertex` corners and uint triangles, and each slot's `SlotLook` by
-`EditMesh.LookAt`, whose maps `MaterialMap` names, and makes meshes and materials of its own.
+mesh a material slot of `MeshVertex` corners and uint triangles, and each slot's `MaterialDescription` by
+`EditMesh.LookAt`, with `EditMesh.GivenAt` saying which fields a recipe gave, whose maps `MaterialMap` names, and makes meshes and materials of its own.
 
 What the module gives out stands on these conventions.
 
@@ -101,6 +101,7 @@ into its console.
 
 ```csharp
 using System.Numerics;
+using Materials;
 using Modeling;
 
 // The engine's files, kept here in memory by their paths, which every mesh it makes reads and
@@ -161,7 +162,7 @@ public static class HostBinding
         {
             var (vertices, indices) = built[slot];
             var look = mesh.LookAt(slot);
-            var material = new HostMaterial(mesh.Slots[slot], look.Color ?? Vector4.One, look.Texture, look.NormalMap, look.Emissive ?? Vector3.Zero);
+            var material = new HostMaterial(mesh.Slots[slot], look.BaseColor, look.PictureOf(PictureRole.BaseColor)?.Picture.Path, look.PictureOf(PictureRole.NormalX)?.Picture.Path, look.Emissive);
             meshes[slot] = new HostMesh([.. vertices.Select(v => new HostVertex(v.Position, v.Normal, v.Uv))], indices, material);
         }
         return meshes;

@@ -206,8 +206,8 @@ public sealed class ExchangeTests : IDisposable
 
         // the slot's look, its color through glTF's linear factor and back to five places
         var look = mesh.LookOf("stone");
-        Assert.Equal(new Vector4(0.8f, 0.6f, 0.4f, 1), look.Color!.Value, new Vector4Close(1e-4f));
-        Assert.Equal(("textures/stone.png", "textures/stone_n.png"), (look.Texture, look.NormalMap));
+        Assert.Equal(new Vector4(0.6038274f, 0.31854683f, 0.13286833f, 1), look.BaseColor, new Vector4Close(1e-4f));
+        Assert.Equal(("textures/stone.png", "textures/stone_n.png"), (look.PictureOf(Materials.PictureRole.BaseColor)?.Picture.Path, look.PictureOf(Materials.PictureRole.NormalX)?.Picture.Path));
         Assert.Equal((0.25f, 0.5f), (look.Metallic, look.Roughness));
         Assert.Equal(new Vector3(3, 1.5f, 0), look.Emissive);
 
@@ -250,6 +250,39 @@ public sealed class ExchangeTests : IDisposable
         edit(root["materials"]![0]!.AsObject());
         File.WriteAllText(path, root.ToJsonString());
         return $"models/{name}.gltf";
+    }
+
+    [Fact]
+    public void An_Imported_Slot_Holds_Every_Value_Of_The_Description_Its_File_Gave()
+    {
+        // a material with what glTF's core and extensions give beyond a color and a few factors
+        var path = Edited("rich", material =>
+        {
+            material["alphaMode"] = "MASK";
+            material["alphaCutoff"] = 0.3;
+            material["doubleSided"] = true;
+            material["emissiveFactor"] = new System.Text.Json.Nodes.JsonArray(1.0, 0.5, 0.0);
+            material["normalTexture"] = new System.Text.Json.Nodes.JsonObject { ["index"] = 0, ["scale"] = 0.7 };
+            material["occlusionTexture"] = new System.Text.Json.Nodes.JsonObject { ["index"] = 0, ["strength"] = 0.4 };
+            var root = material.Parent!.Parent!.AsObject();
+            root["extensionsUsed"] = new System.Text.Json.Nodes.JsonArray("KHR_materials_ior", "KHR_materials_emissive_strength", "KHR_materials_diffuse_transmission");
+            material["extensions"] = new System.Text.Json.Nodes.JsonObject
+            {
+                ["KHR_materials_ior"] = new System.Text.Json.Nodes.JsonObject { ["ior"] = 1.7 },
+                ["KHR_materials_emissive_strength"] = new System.Text.Json.Nodes.JsonObject { ["emissiveStrength"] = 2.0 },
+                ["KHR_materials_diffuse_transmission"] = new System.Text.Json.Nodes.JsonObject { ["diffuseTransmissionFactor"] = 0.3 },
+            };
+        });
+        var given = Assert.Single(_folder.Files.ReadModel(path)).Look!;
+        Assert.Equal((0.7f, 0.4f, 0.3f, 0.3f, Materials.AlphaMode.Mask, true), (given.NormalScale, given.OcclusionStrength, given.DiffuseTransmission, given.AlphaCutoff, given.AlphaMode, given.DoubleSided));
+        Assert.Equal(Materials.EmissiveUnit.Unitless, given.EmissiveUnit);
+
+        var mesh = _folder.Mesh();
+        mesh.Import(path);
+
+        // the slot reads back the whole of it, the seven values a color, a texture and a few
+        // factors did not hold among them
+        Assert.Equal(given, mesh.LookAt(0));
     }
 
     [Fact]

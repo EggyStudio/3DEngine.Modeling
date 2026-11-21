@@ -105,8 +105,10 @@ void SelectEdges(ReadOnlySpan<(int A, int B)> edges, SelectionMode mode = Select
 void SelectFacing(Vector3 direction, SelectionMode mode = SelectionMode.Replace);  // Selects the faces that face nearest one way along an axis, such as up
 void SelectInside(Vector3 corner, Vector3 opposite, SelectionMode mode = SelectionMode.Replace);  // Selects the vertices inside a box, the faces all of whose corners are inside it, and the edges between
 void SelectSlot(string slot, SelectionMode mode = SelectionMode.Replace);  // Selects the faces in a material slot, a name no slot has selecting none
-SlotLook LookAt(int slot);                               // What a slot is drawn with, by its index in Slots, nothing given where it is the prototype material of its name
-SlotLook LookOf(string slot);                            // What a slot is drawn with, by its name, nothing given where it is the prototype material of its name
+MaterialDescription LookAt(int slot);                    // What a slot is drawn with, by its index in Slots, as the Materials module describes a surface, its color in linear light and its pictures by the roles they hold
+MaterialDescription LookOf(string slot);                 // What a slot is drawn with, by its name, as LookAt holds it
+SlotGiven GivenAt(int slot);                             // The fields a recipe gave a slot, by its index in Slots, none where it is the prototype material of its name
+SlotGiven GivenOf(string slot);                          // The fields a recipe gave a slot, by its name
 void SlotAdd(string slot);                               // Adds a slot no face is in yet, drawn with the prototype material of its name
 void SlotRename(string slot, string name);               // Gives a slot another name, its faces and its look kept
 void SlotRemove(string slot);                            // Takes a slot away, its faces given the first slot, the slots after it moving down by one
@@ -162,19 +164,17 @@ Bounds(Vector3 Min, Vector3 Max);
 Vector3 Min { get; init; }                               // The corner with the lowest X, Y and Z
 Vector3 Max { get; init; }                               // The corner with the highest X, Y and Z
 
-record SlotLook                                          // What a material slot of an edit mesh is drawn with, a color, a texture and the maps of a glTF material, each null until the recipe gives it
-SlotLook();                                              // Makes a look with nothing given, the prototype material of the slot's name
-Vector4? Color { get; init; }                            // The color, as sRGB numbers from zero to one as a color picker shows them, with its alpha, or null
-string? Texture { get; init; }                           // The picture the faces show, the material's base color texture, or null
-string? NormalMap { get; init; }                         // The normal map, or null
-string? OcclusionMap { get; init; }                      // The ambient occlusion map, or null
-string? MetallicRoughnessMap { get; init; }              // The map of metalness in its blue channel and roughness in its green, as glTF lays it out, or null
-Vector3? Emissive { get; init; }                         // The emissive color, in linear numbers that may pass one, or null
-string? EmissiveMap { get; init; }                       // The emissive map, or null
-float? Metallic { get; init; }                           // How metal the faces are, from zero to one, or null
-float? Roughness { get; init; }                          // How rough the faces are, from zero to one, or null
-bool IsPrototype { get; }                                // Whether nothing is given, so the slot is drawn with the prototype material of its name
-string Words();                                          // What is given, in the recipe's words, as color 1 0 0 1, texture bricks.png, or nothing for a prototype
+enum SlotGiven                                           // What a recipe gave a material slot, one flag a field, so a slot that gave nothing is drawn with the prototype material of its name and one that gave a color or a map is drawn with it
+None = 0,                                                // Nothing, so the slot is drawn with the prototype material of its name
+Color = 1,                                               // The base color, which a recipe writes in sRGB
+Texture = 2,                                             // The base color's picture
+NormalMap = 4,                                           // The normal map's picture
+OcclusionMap = 8,                                        // The occlusion map's picture
+MetallicRoughnessMap = 16,                               // The picture that holds roughness and metalness
+Emissive = 32,                                           // The emitted light
+EmissiveMap = 64,                                        // The emission's picture
+Metallic = 128,                                          // The metalness
+Roughness = 256,                                         // The roughness
 
 enum MaterialMap                                         // A map a material slot's look names by its file, each with the word its recipe line takes
 Albedo = 0,                                              // The base color's texture, which takes the grid's place, texture in a recipe
