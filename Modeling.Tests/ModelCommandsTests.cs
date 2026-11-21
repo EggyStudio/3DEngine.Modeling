@@ -41,6 +41,34 @@ public sealed class ModelCommandsTests : IDisposable
     ];
 
     [Fact]
+    public void A_Color_Is_Kept_To_Five_Places_Through_A_Save_And_A_Load()
+    {
+        // every color of n over 255 at five places, the sRGB numbers a color picker gives
+        Run("model.box hall 1 1 1");
+        for (var n = 0; n <= 255; n++)
+        {
+            var part = MathF.Round(n / 255f, 5).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Assert.StartsWith("hall: ", Run($"model.slot hall color default {part} {part} {part}"));
+            Run("model.save hall hall.model");
+            Run("model.load again hall.model");
+            Assert.Equal($"slots default (color {part} {part} {part} 1)", Run("model.info again").Split('\n')[3]);
+        }
+    }
+
+    [Fact]
+    public void A_Color_Given_To_More_Places_Than_Five_Reads_Back_At_Five()
+    {
+        Run("model.box hall 1 1 1");
+        Run("model.slot hall color default 0.1234567 0.7654321 0.5");
+
+        // the recipe keeps the line as it was given, the model's slot its color to five places
+        Assert.Equal("slot color default 0.1234567 0.7654321 0.5", Run("model.recipe hall").Split('\n')[^1]);
+        Run("model.save hall hall.model");
+        Run("model.load again hall.model");
+        Assert.Equal("slots default (color 0.12346 0.76543 0.5 1)", Run("model.info again").Split('\n')[3]);
+    }
+
+    [Fact]
     public void The_Guides_House_Is_Blocked_Out_Line_By_Line_Each_Answering_Its_Counts()
     {
         var answers = House.Select(Run).ToArray();

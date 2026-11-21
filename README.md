@@ -228,6 +228,10 @@ selecting what it made. A line is written in the usage grammar of the commands, 
 command taking the line after the model's name, and a `<side>` is one of `+x`, `-x`, `+y`, `-y`,
 `+z` and `-z`, the faces that face nearest that way.
 
+A color is kept to five places, sRGB's numbers held as linear light and written back to five, so
+`model.info` says a color given to seven places at five, while the recipe's own line keeps it as it
+was given, and every color of n over 255 comes back the same through a save and a load.
+
 ```text
 model 1
 # a room with a door in its front wall

@@ -632,3 +632,10 @@ linear light where it was the sRGB numbers the recipe gave, `look.Texture` is
 `PictureRole.NormalX`, `look.Emissive ?? Vector3.Zero` is `look.Emissive`, and
 `look.IsPrototype` is `mesh.GivenAt(slot) == SlotGiven.None`, where the engine draws the prototype
 material of the slot's name. The tests pass, 180 with the long wall skipped.
+
+The color's five places, in the commit carrying this line. A slot holds a color as linear light, and
+`model.info` writes it back as sRGB's numbers to five places, so every color of n over 255 at five
+places comes back the same through a save and a load, and a color given to seven places reads back
+at five, both held by tests in ModelCommandsTests and said in the README's recipe section. The
+recipe's own line keeps a color as it was given, so a save and a load lose nothing there, and the
+five places are what the model's slot says of it. The tests pass, 182 with the long wall skipped.
