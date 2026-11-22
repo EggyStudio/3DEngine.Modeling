@@ -126,6 +126,78 @@ public sealed class ModifierTests
         Assert.Equal(4, Enumerable.Range(0, top.FaceCount).Count(face => top.Normal(face) == Vector3.UnitY));
     }
 
+    /// <summary>
+    /// A room with a window and a door cut through its front wall, the shape whose beveled inner
+    /// edge has a corner where a coplanar wall's edge meets it.
+    /// </summary>
+    private static EditMesh CutRoom()
+    {
+        var room = new EditMesh();
+        room.Room(new Vector3(6, 3, 5), 0.2f);
+        room.SelectFacing(Vector3.UnitZ);
+        room.Window(1.2f, 1.1f, 3.8f, 1f);
+        room.SelectFacing(Vector3.UnitZ);
+        room.SelectInside(new Vector3(-1, -1, 4.9f), new Vector3(7, 4, 5.1f));
+        room.Door(1f, 2.1f, 1.2f);
+        return room;
+    }
+
+    [Theory]
+    [InlineData(1, 0f)]
+    [InlineData(1, 30f)]
+    [InlineData(2, 30f)]
+    [InlineData(3, 30f)]
+    [InlineData(2, 0f)]
+    public void A_Bevel_Modifier_Leaves_No_Face_Without_Area_And_No_Edge_In_More_Than_Two_Uses(int segments, float angle)
+    {
+        var plain = new EditMesh();
+        plain.Box(new Vector3(2));
+        var top = new EditMesh();
+        top.Box(new Vector3(2));
+        top.SelectFacing(Vector3.UnitY);
+        top.Subdivide();
+        var shapes = new[] { ("a box", plain), ("a box with its top cut in four", top), ("a room cut for a window and a door", CutRoom()) };
+
+        foreach (var (name, shape) in shapes)
+        {
+            shape.ModifierBevel(0.12f, segments, angle);
+            var built = shape.Modified();
+            var uses = new Dictionary<(int, int), int>();
+            for (int face = 0; face < built.FaceCount; face++)
+            {
+                var corners = built.Corners(face).ToArray();
+                var area = Vector3.Zero;
+                for (int k = 0; k < corners.Length; k++)
+                {
+                    var (a, b) = (built.Position(corners[k]), built.Position(corners[(k + 1) % corners.Length]));
+                    area += Vector3.Cross(a, b);
+                    var edge = (Math.Min(corners[k], corners[(k + 1) % corners.Length]), Math.Max(corners[k], corners[(k + 1) % corners.Length]));
+                    uses[edge] = uses.GetValueOrDefault(edge) + 1;
+                }
+                Assert.True(area.Length() > 1e-9f, $"{name} beveled at {segments} segments and {angle} degrees has face {face} with no area");
+            }
+            Assert.All(uses, edge => Assert.True(edge.Value <= 2, $"{name} beveled at {segments} segments and {angle} degrees has an edge {edge.Key} in {edge.Value} face uses"));
+            Assert.True(MeshInfo.Of(built).IsClosed, $"{name} beveled at {segments} segments and {angle} degrees is open");
+        }
+    }
+
+    [Fact]
+    public void A_Bevel_Modifier_Keeps_A_Walls_Cut_Straight_Where_A_Coplanar_Edge_Ends_On_Its_Corner()
+    {
+        var room = CutRoom();
+        room.ModifierBevel(0.12f, 2, 30f);
+        var built = room.Modified();
+
+        // The front wall's bottom cut runs at the width above the floor along its whole length,
+        // the corner at its right end as far in as at its left, not slid along the diagonal the
+        // window's cut leaves in the wall.
+        var front = Enumerable.Range(0, built.FaceCount).SelectMany(face => built.Corners(face).ToArray())
+            .Select(corner => built.Position(corner)).Where(p => Math.Abs(p.Z - 5f) < 1e-4f && p.Y > 0.01f && p.Y < 0.2f).Distinct().ToArray();
+        Assert.NotEmpty(front);
+        Assert.All(front, p => Assert.Equal(0.12f, p.Y, 1e-4f));
+        Assert.Contains(front, p => Math.Abs(p.X - 5.88f) < 1e-3f);
+    }
+
     [Fact]
     public void The_Stack_Applies_In_Order_And_Is_Moved_Taken_From_And_Applied()
     {

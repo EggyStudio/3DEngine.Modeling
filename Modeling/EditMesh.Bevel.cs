@@ -14,7 +14,10 @@ public sealed partial class EditMesh
     /// An edge is beveled where both its ends are selected and two faces run along it in opposite
     /// directions. Each face beside a beveled edge is cut back by the width from it, a corner
     /// between two beveled edges moving in by the width from both, and an edge that is not beveled
-    /// at a corner that is gives up the end of it the bevel needs, its far end where it was.
+    /// at a corner that is gives up the end of it the bevel needs, its far end where it was. Where
+    /// that edge lies between two faces of one plane, as a window's cut leaves in a wall, the
+    /// corner moves in by the width from the two beveled edges instead, so the wall's cut stays
+    /// straight, and two bands that meet along an edge such a neighbor ends on share their arc.
     /// </para>
     /// <para>
     /// Across each edge the band follows the arc tangent to both faces at the width from the edge,
@@ -86,6 +89,32 @@ public sealed partial class EditMesh
             }
         }
 
+        // Where an edge that is not beveled lies between two faces of one plane, each with a
+        // beveled edge at the corner, the plane's outline turns there as at a corner of two beveled
+        // edges, so the end is the point the width in from both, not a point slid along the edge.
+        Vector3? PlanarMeet(int at, int toward)
+        {
+            var inwards = new List<(Vector3 Inward, Vector3 Normal, int Beveled)>();
+            foreach (var face in _faces)
+            {
+                var corners = face.Corners;
+                for (int k = 0; k < corners.Length; k++)
+                {
+                    var (before, here, after) = (corners[(k + corners.Length - 1) % corners.Length], corners[k], corners[(k + 1) % corners.Length]);
+                    if (here != at || (before != toward && after != toward)) continue;
+                    var normal = Unit(Newell(corners));
+                    var (inBeveled, outBeveled) = (IsBeveled(before, at), IsBeveled(at, after));
+                    if (inBeveled == outBeveled) return null;
+                    inwards.Add((inBeveled ? Unit(Vector3.Cross(normal, _positions[at] - _positions[before])) : Unit(Vector3.Cross(normal, _positions[after] - _positions[at])),
+                        normal, inBeveled ? before : after));
+                }
+            }
+
+            if (inwards.Count != 2 || Vector3.Dot(inwards[0].Normal, inwards[1].Normal) < 0.99999f || inwards[0].Beveled == inwards[1].Beveled) return null;
+            var meet = 1 + Vector3.Dot(inwards[0].Inward, inwards[1].Inward);
+            return meet > 1e-4f ? _positions[at] + (inwards[0].Inward + inwards[1].Inward) * (width / meet) : null;
+        }
+
         var slid = new Dictionary<(int At, int Toward), int>();
         foreach (var (low, high) in EdgeUses().Keys)
         {
@@ -93,6 +122,12 @@ public sealed partial class EditMesh
             foreach (var (at, toward) in new[] { (low, high), (high, low) })
             {
                 if (!touched.Contains(at)) continue;
+                if (PlanarMeet(at, toward) is { } planar)
+                {
+                    slid[(at, toward)] = Add(planar, at);
+                    continue;
+                }
+
                 var distance = slides.TryGetValue((at, toward), out var found) ? found.Average() : width;
                 slid[(at, toward)] = Add(_positions[at] + Unit(_positions[toward] - _positions[at]) * distance, at);
             }
@@ -197,6 +232,27 @@ public sealed partial class EditMesh
                 at = step;
             }
             if (!closed || loop.Count < 3) continue;
+
+            // Two bands that meet along an edge a coplanar neighbor ends on leave a loop whose
+            // two halves are one arc walked there and back, which has no area. Its points are
+            // welded in pairs instead, so the bands share the arc and no face lies on it.
+            var weld = new Dictionary<int, int>();
+            if (Newell(loop.ToArray()).Length() <= width * width * 1e-4f)
+                for (int i = 0; i < loop.Count; i++)
+                    for (int j = i + 1; j < loop.Count; j++)
+                        if (!weld.ContainsKey(loop[j]) && (_positions[loop[i]] - _positions[loop[j]]).Length() <= width * 1e-3f)
+                            weld[loop[j]] = weld.GetValueOrDefault(loop[i], loop[i]);
+            if (weld.Count > 0)
+            {
+                foreach (var face in _faces)
+                {
+                    if (!face.Corners.Any(weld.ContainsKey)) continue;
+                    var welded = face.Corners.Select(corner => weld.GetValueOrDefault(corner, corner)).ToArray();
+                    Recorner(face, [.. welded.Where((corner, k) => corner != welded[(k + 1) % welded.Length])]);
+                }
+                continue;
+            }
+
             var (slot, smooth) = slots[origin[start]];
             made.Add(AddFace([.. loop], slot, smooth));
         }

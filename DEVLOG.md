@@ -12,6 +12,11 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 A room of 6 by 3 by 5 m as the module makes it, then with a window and a door cut through its front
 wall, then with its edges beveled by a modifier.
 
+Commits that day
+
+- `050c435` The README's capture draws no line between two flat faces of one plane.
+- `f6b84c6` The README opens with a capture of a room shaped in three steps.
+
 ## 2026-11-21
 
 Commits that day
