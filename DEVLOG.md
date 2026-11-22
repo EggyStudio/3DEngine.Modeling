@@ -6,10 +6,20 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-22
+
+![](.github/assets/readings/2026-11-22-readme-room.webp)
+A room of 6 by 3 by 5 m as the module makes it, then with a window and a door cut through its front
+wall, then with its edges beveled by a modifier.
+
 ## 2026-11-21
 
 Commits that day
 
+- `711cae0` Tests and the README state that a color a slot holds is read back to five places, and a
+  recipe's own line keeps it as given.
+- `4a17616` A slot holds the Materials module's description of its surface with the fields a recipe
+  gave, in place of a look of the module's own that lost seven of an imported material's values.
 - `2911427` The Tools module is moved to its head, and the handoff names no lock for a build and
   tests that open no device.
 

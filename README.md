@@ -2,6 +2,10 @@
 
 # Modeling
 
+![A room, then with a window and a door cut through its front wall, then with its edges beveled](.github/assets/readings/2026-11-22-readme-room.webp)
+
+A room of 6 by 3 by 5 m as the module makes it, then with a window and a door cut through its front wall, then with its edges beveled.
+
 Modeling is a library an engine takes as a git submodule, for the edit mesh shaped by operations
 through a selection, its recipes and the `model.*` commands. It references no engine, and an engine
 implements the interface it declares where it binds the module.
