@@ -639,3 +639,10 @@ places comes back the same through a save and a load, and a color given to seven
 at five, both held by tests in ModelCommandsTests and said in the README's recipe section. The
 recipe's own line keeps a color as it was given, so a save and a load lose nothing there, and the
 five places are what the model's slot says of it. The tests pass, 182 with the long wall skipped.
+
+The long wall's open edges, located in the commit carrying this line. After the 25th cut the 3 open
+edges close one triangle on the front face, along the top line of a window, of height 7e-5 m over a
+side of 0.877 m, so under the join's distance of 1e-4 m with an area far over the partition's 1e-12.
+The wall is open after the 11th, 14th, 20th, 21st, 22nd and 25th cuts and closed after the other
+19, which the reading `2026-11-25-long-wall-open-edges.md` lists. No code changed, so the tests
+pass as before, 188 with the long wall skipped.
